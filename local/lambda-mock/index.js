@@ -10,7 +10,11 @@ AWS.config.update({
 });
 
 const sqs = new AWS.SQS();
-const s3 = new AWS.S3();
+const s3 = new AWS.S3({
+  endpoint: process.env.AWS_ENDPOINT,
+  s3ForcePathStyle: true,
+});
+
 
 async function pollQueue() {
   console.log("Polling for messages...");
