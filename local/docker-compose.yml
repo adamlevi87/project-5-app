@@ -63,7 +63,18 @@ services:
       SQS_QUEUE_URL: http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/my-queue
       S3_BUCKET_NAME: myapp-bucket
 
-  
+  s3-init:
+    depends_on:
+      - lambda-mock
+    image: amazon/aws-cli
+    entrypoint: >
+      /bin/sh -c "
+        aws --endpoint-url=http://localstack:4566 s3 mb s3://myapp-bucket || true
+      "
+    environment:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+
 volumes:
   pgdata:
   localstack:
