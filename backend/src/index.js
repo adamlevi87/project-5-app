@@ -7,7 +7,9 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-app.use(cors({ origin: 'http://localhost' }));
+app.use(cors({
+  origin: ['http://localhost', 'http://backend']
+}));
 app.use(express.json());
 
 // PostgreSQL connection
