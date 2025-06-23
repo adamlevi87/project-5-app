@@ -16,7 +16,7 @@ services:
     image: localstack/localstack
     environment:
       SERVICES: sqs
-      DEFAULT_REGION: us-east-1
+      #DEFAULT_REGION: us-east-1
     ports:
       - "4566:4566"
     volumes:
