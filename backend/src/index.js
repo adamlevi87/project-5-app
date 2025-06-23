@@ -1,11 +1,13 @@
 const express = require('express');
 const { Pool } = require('pg');
 const AWS = require('aws-sdk');
+const cors = require('cors');
 
 // Load env vars
 require('dotenv').config();
 
 const app = express();
+app.use(cors({ origin: 'http://localhost' }));
 app.use(express.json());
 
 // PostgreSQL connection
