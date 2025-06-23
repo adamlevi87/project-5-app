@@ -70,7 +70,7 @@ services:
       - localstack
     entrypoint: >
       /bin/sh -c "
-        aws --endpoint-url=http://localstack:4566 s3 mb s3://myapp-bucket || true
+        aws --endpoint-url=http://localstack:4566 --region us-east-1 s3 mb s3://myapp-bucket || true
       "
     environment:
       AWS_ACCESS_KEY_ID: test
