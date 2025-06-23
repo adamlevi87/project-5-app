@@ -15,6 +15,8 @@ const s3 = new AWS.S3({
   s3ForcePathStyle: true,
 });
 
+// dummy
+
 
 async function pollQueue() {
   console.log("Polling for messages...");
