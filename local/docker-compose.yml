@@ -56,7 +56,7 @@ services:
     build:
       context: ./lambda-mock
     depends_on:
-      - localstack
+      - s3-init
     environment:
       AWS_REGION: us-east-1
       AWS_ENDPOINT: http://localstack:4566
@@ -64,9 +64,10 @@ services:
       S3_BUCKET_NAME: myapp-bucket
 
   s3-init:
-    depends_on:
-      - lambda-mock
     image: amazon/aws-cli
+    container_name: s3-init
+    depends_on:
+      - localstack
     entrypoint: >
       /bin/sh -c "
         aws --endpoint-url=http://localstack:4566 s3 mb s3://myapp-bucket || true
