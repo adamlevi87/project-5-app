@@ -1,0 +1,45 @@
+#version: '3.9'
+services:
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: myapp
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: myapp_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+  localstack:
+    image: localstack/localstack
+    environment:
+      SERVICES: sqs
+      DEFAULT_REGION: us-east-1
+    ports:
+      - "4566:4566"
+    volumes:
+      - localstack:/var/lib/localstack
+      #- /var/run/docker.sock:/var/run/docker.sock
+
+  backend:
+    build:
+      context: ../backend
+    depends_on:
+      - postgres
+      - localstack
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: myapp
+      DB_PASSWORD: password
+      DB_NAME: myapp_db
+      AWS_REGION: us-east-1
+      SQS_QUEUE_URL: http://localstack:4566/000000000000/my-queue
+
+volumes:
+  pgdata:
+  localstack:
