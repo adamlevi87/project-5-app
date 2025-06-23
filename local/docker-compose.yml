@@ -26,7 +26,7 @@ services:
 
   backend:
     build:
-      context: ../backend
+      context: ../app/backend
     depends_on:
       - postgres
       - localstack
@@ -43,7 +43,7 @@ services:
 
   frontend:
     build:
-      context: ../frontend
+      context: ../app/frontend
       dockerfile: Dockerfile
       args:
         REACT_APP_BACKEND_URL: http://backend:3000
