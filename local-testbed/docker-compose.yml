@@ -19,7 +19,7 @@ services:
   localstack:
     image: ${LOCALSTACK_IMAGE}
     environment:
-      SERVICES: ${LOCALSTACK_VARIABLES}
+      SERVICES: ${LOCALSTACK_SERVICES}
       QUEUE_NAME: ${QUEUE_NAME}
     ports:
       - "${LOCALSTACK_PORT}:${LOCALSTACK_PORT}"
