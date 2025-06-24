@@ -8,6 +8,10 @@ require('dotenv').config();
 
 const app = express();
 const origins = ['http://localhost'];
+
+// Log what BACKEND_HOST is (for debugging)
+console.log('CORS BACKEND_HOST:', process.env.BACKEND_HOST);
+
 if (process.env.BACKEND_HOST) {
   origins.push(`http://${process.env.BACKEND_HOST}`);
 }
