@@ -1,7 +1,7 @@
 #!/bin/bash
 # Load the base .env
 set -a
-source .env
+source .env.base
 set +a
 
 # Compose combined variables
