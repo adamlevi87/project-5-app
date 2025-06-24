@@ -1,2 +1,2 @@
 #!/bin/bash
-awslocal sqs create-queue --queue-name my-queue
+awslocal sqs create-queue --queue-name "$QUEUE_NAME"
