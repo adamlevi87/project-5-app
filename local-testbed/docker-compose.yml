@@ -1,7 +1,10 @@
 #version: '3.9'
 services:
   postgres:
-    image: ${POSTGRES_IMAGE}
+    build:
+      context: ./postgres
+      args:
+        POSTGRES_VERSION: 14
     environment:
       POSTGRES_TABLE: ${POSTGRES_TABLE}
       POSTGRES_USER: ${POSTGRES_USER}
