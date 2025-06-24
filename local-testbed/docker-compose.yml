@@ -16,7 +16,7 @@ services:
       - ./postgres/init-db.template.sql:/docker-entrypoint-initdb.d/init-db.template.sql
       - ./postgres/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
       - pgdata:/var/lib/postgresql/data
-    entrypoint: ["sh", "-c", "chmod +x /docker-entrypoint-initdb.d/init-db.sh && /docker-entrypoint-initdb.d/init-db.sh && && exec /usr/local/bin/docker-entrypoint.sh postgres"]
+    entrypoint: ["sh", "-c", "chmod +x /docker-entrypoint-initdb.d/init-db.sh && /docker-entrypoint-initdb.d/init-db.sh && exec /usr/local/bin/docker-entrypoint.sh postgres"]
 
 
   localstack:
