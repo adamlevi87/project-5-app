@@ -7,6 +7,9 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
+
+app.use(express.json()); //
+
 const origins = ['http://localhost'];
 
 // Log what BACKEND_HOST is (for debugging)
