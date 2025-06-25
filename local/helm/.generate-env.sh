@@ -87,7 +87,7 @@ EOF
 
 
 # === nginx values ===
-if [ "$1" == "nginx" ]; then
+elif [ "$1" == "nginx" ]; then
   echo "🔧 Generating values.local.yaml for nginx..."
 
   cat <<EOF > ./infra/ingress-nginx/values.local.yaml
