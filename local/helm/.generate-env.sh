@@ -37,7 +37,7 @@ containerPort: "$BACKEND_PORT"
 ingress:
   enabled: "${BACKEND_INGRESS_ENABLED}"
   host: "${BACKEND_HOST}.local"
-  ingressControllerClassResourceName:"${INGRESS_CONTROLLER_CLASS_RESOURCE_NAME}"
+  ingressControllerClassResourceName: "${INGRESS_CONTROLLER_CLASS_RESOURCE_NAME}"
   annotations:
     "${BACKEND_REWRITE_TARGET}": "${BACKEND_REWRITE_VALUE}"
 
