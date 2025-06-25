@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "common.fullname" . }}
   labels:
-    {{ include "common.labels" . | indent 4 }}
+    {{ include "common.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.backendReplicaCount | default 1 }}
   selector:

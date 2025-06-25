@@ -4,7 +4,7 @@ kind: Ingress
 metadata:
   name: {{ include "common.fullname" . }}
   labels:
-    {{ include "common.labels" . }}
+    {{ include "common.labels" . | nindent 4 }}
   annotations:
     {{- range $key, $value := .Values.ingress.annotations }}
       {{ $key }}: {{ required (printf "Missing value for annotation.%s" $key) $value | quote }}  

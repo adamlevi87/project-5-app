@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ include "common.fullname" . }}
   labels:
-    {{ include "common.labels" . }}
+    {{ include "common.labels" . | nindent 4 }}
 spec:
   type: {{ required "service.type is required" .Values.service.type }}
   selector:
