@@ -1,25 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ include (printf "%s.fullname" .Chart.Name) . }}
   labels:
-    app: {{ .Release.Name }}
+    {{ include (printf "%s.labels" .Chart.Name) . | indent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.backendReplicaCount | default 1 }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      app: {{ include (printf "%s.fullname" .Chart.Name) . }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        app: {{ include (printf "%s.fullname" .Chart.Name) . }}
     spec:
       containers:
         - name: backend
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ required "image.repository is required" .Values.image.repository }}:{{ required "image.tag is required"  .Values.image.tag }}"
+          imagePullPolicy: {{ required "image.pullPolicy is required" .Values.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.containerPort }}
+            - containerPort: {{ required "containerPort is required" .Values.containerPort }}
           envFrom:
             - secretRef:
-                name: {{ .Release.Name }}-env
+                name: {{ include (printf "%s.fullname" .Chart.Name) . }}-env

@@ -4,7 +4,7 @@ image:
   pullPolicy: IfNotPresent
 
 service:
-  type: ClusterIP       # Could stay default
+  type: null            # Must be overridden
   port: null            # Must be overridden
 
 containerPort: null     # Must be overridden
@@ -12,3 +12,6 @@ containerPort: null     # Must be overridden
 ingress:
   enabled: true
   host: ""              # Must be overridden
+  annotations:
+    rewriteTarget: null    # Must be overridden
+    rewriteValue: null     # Must be overridden
