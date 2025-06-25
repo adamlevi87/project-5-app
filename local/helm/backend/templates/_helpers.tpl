@@ -1,8 +1,8 @@
-{{- define "{{ .Chart.Name }}.fullname" -}}
+{{- define "common.fullname" -}}
 {{ .Release.Name }}
 {{- end }}
 
-{{- define "{{ .Chart.Name }}.labels" -}}
+{{- define "common.labels" -}}
 app.kubernetes.io/name: {{ .Chart.Name }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}

@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include (printf "%s.fullname" .Chart.Name) . }}
+  name: {{ include "common.fullname" . }}
   labels:
     {{ include (printf "%s.labels" .Chart.Name) . | indent 4 }}
 spec:
   replicas: {{ .Values.backendReplicaCount | default 1 }}
   selector:
     matchLabels:
-      app: {{ include (printf "%s.fullname" .Chart.Name) . }}
+      app: {{ include "common.fullname" . }}
   template:
     metadata:
       labels:
-        app: {{ include (printf "%s.fullname" .Chart.Name) . }}
+        app: {{ include "common.fullname" . }}
     spec:
       containers:
         - name: backend
@@ -22,4 +22,4 @@ spec:
             - containerPort: {{ required "containerPort is required" .Values.containerPort }}
           envFrom:
             - secretRef:
-                name: {{ include (printf "%s.fullname" .Chart.Name) . }}-env
+                name: {{ include "common.fullname" . }}-env

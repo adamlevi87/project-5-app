@@ -2,9 +2,9 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include (printf "%s.fullname" .Chart.Name) . }}
+  name: {{ include "common.fullname" . }}
   labels:
-    {{ include (printf "%s.labels" .Chart.Name) . }}
+    {{ include "common.labels" . }}
   annotations:
     {{- range $key, $value := .Values.ingress.annotations }}
       {{ $key }}: {{ required (printf "Missing value for annotation.%s" $key) $value | quote }}  
@@ -18,7 +18,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: {{ include (printf "%s.fullname" .Chart.Name) . }}
+                name: {{ include "common.fullname" . }}
                 port:
                   name: http
 {{- end }}
