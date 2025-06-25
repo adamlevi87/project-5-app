@@ -14,5 +14,7 @@ SQS_QUEUE_URL=http://${LOCALSTACK_HOST}:${LOCALSTACK_PORT}/000000000000/${QUEUE_
 AWS_ENDPOINT=http://${LOCALSTACK_HOST}:${LOCALSTACK_PORT}
 EOF
 
+envsubst < postgres/init-db.template.sql > postgres/init-db.sql
+
 # Append all base vars
 cat .env.base >> .env

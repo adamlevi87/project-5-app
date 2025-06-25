@@ -1,10 +1,7 @@
 #version: '3.9'
 services:
   postgres:
-    build:
-      context: ./postgres
-      args:
-        POSTGRES_VERSION: ${POSTGRES_VERSION}
+    image: postgres:${POSTGRES_VERSION}
     environment:
       POSTGRES_TABLE: ${POSTGRES_TABLE}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -13,11 +10,9 @@ services:
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
-      - ./postgres/init-db.template.sql:/docker-entrypoint-initdb.d/init-db.template.sql
-      - ./postgres/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+      - ./postgres/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
       - pgdata:/var/lib/postgresql/data
-    entrypoint: ["sh", "-c", "chmod +x /docker-entrypoint-initdb.d/init-db.sh && /docker-entrypoint-initdb.d/init-db.sh && exec /usr/local/bin/docker-entrypoint.sh postgres"]
-
+      
 
   localstack:
     image: ${LOCALSTACK_IMAGE}
