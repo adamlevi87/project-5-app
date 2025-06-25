@@ -1,0 +1,95 @@
+#version: '3.9'
+services:
+  postgres:
+    build:
+      context: ./postgres
+      args:
+        POSTGRES_VERSION: ${POSTGRES_VERSION}
+    environment:
+      POSTGRES_TABLE: ${POSTGRES_TABLE}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+    volumes:
+      - ./postgres/init-db.template.sql:/docker-entrypoint-initdb.d/init-db.template.sql
+      - ./postgres/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+      - pgdata:/var/lib/postgresql/data
+    entrypoint: ["sh", "-c", "chmod +x /docker-entrypoint-initdb.d/init-db.sh && /docker-entrypoint-initdb.d/init-db.sh && exec /usr/local/bin/docker-entrypoint.sh postgres"]
+
+
+  localstack:
+    image: ${LOCALSTACK_IMAGE}
+    environment:
+      SERVICES: ${LOCALSTACK_SERVICES}
+      QUEUE_NAME: ${QUEUE_NAME}
+    ports:
+      - "${LOCALSTACK_PORT}:${LOCALSTACK_PORT}"
+    volumes:
+      - localstack:/var/lib/localstack
+      - ./localstack/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh
+    entrypoint: ["sh", "-c", "chmod +x /etc/localstack/init/ready.d/init-aws.sh && docker-entrypoint.sh"]
+
+
+  s3-init:
+    image: ${AWS_CLI_IMAGE}
+    container_name: ${S3_CONTAINER_NAME}
+    depends_on:
+      - localstack
+    entrypoint: >
+      /bin/sh -c "
+        aws --endpoint-url=http://${LOCALSTACK_HOST}:${LOCALSTACK_PORT} --region ${AWS_REGION} s3 mb s3://${S3_BUCKET_NAME} || true
+      "
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+
+
+  backend:
+    build:
+      context: ../app/backend
+    depends_on:
+      - postgres
+      - localstack
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${POSTGRES_PORT}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+      AWS_REGION: ${AWS_REGION}
+      SQS_QUEUE_URL: ${SQS_QUEUE_URL}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      BACKEND_HOST: ${BACKEND_HOST}
+
+  frontend:
+    build:
+      context: ../app/frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL}
+    depends_on:
+    - backend
+    ports:
+    - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+
+  lambda-mock:
+    build:
+      context: ./lambda-mock
+    depends_on:
+      - s3-init
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ENDPOINT: ${AWS_ENDPOINT}
+      SQS_QUEUE_URL: ${SQS_QUEUE_URL}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+
+volumes:
+  pgdata:
+  localstack:
