@@ -1,2 +1,3 @@
 /local-testbed/.env
+/local/.env
 */postgres/init-db.sql
