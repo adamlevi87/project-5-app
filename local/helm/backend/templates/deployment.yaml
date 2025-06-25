@@ -20,6 +20,9 @@ spec:
           imagePullPolicy: {{ required "image.pullPolicy is required" .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ required "containerPort is required" .Values.containerPort }}
+          env:
+            - name: DB_HOST
+              value: {{ required "db.host is required" .Values.db.host }}
           envFrom:
             - secretRef:
                 name: {{ include "common.fullname" . }}-env

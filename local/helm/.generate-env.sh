@@ -40,6 +40,9 @@ ingress:
   annotations:
     "${BACKEND_REWRITE_TARGET}": "${BACKEND_REWRITE_VALUE}"
 
+  db:
+    host: "${DB_HOST_EXTERNAL}"
+    
 envSecrets:
   AWS_REGION: "${AWS_REGION}"
   AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
