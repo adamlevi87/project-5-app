@@ -10,6 +10,7 @@ metadata:
       {{ $key }}: {{ required (printf "Missing value for annotation.%s" $key) $value | quote }}  
     {{- end }}
 spec:
+  ingressClassName: {{ required "ingress.ingressControllerClassResourceName is required" .Values.ingress.ingressControllerClassResourceName }}
   rules:
     - host: {{ required "ingress.host is required" .Values.ingress.host }}
       http:
