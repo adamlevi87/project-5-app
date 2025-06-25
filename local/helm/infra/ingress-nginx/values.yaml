@@ -1,0 +1,8 @@
+controller:
+  service:
+    type: null          # Must be overridden
+
+  ingressClassResource:
+    name: null         # Must be overridden
+    enabled: true
+    default: true

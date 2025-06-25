@@ -85,7 +85,31 @@ EOF
 
   echo "✅ Frontend values.local.yaml generated."
 
+
+# === nginx values ===
+if [ "$1" == "nginx" ]; then
+  echo "🔧 Generating values.local.yaml for nginx..."
+
+  cat <<EOF > ./infra/ingress-nginx/values.local.yaml
+controller:
+  service:
+    type: "${INGRESS_CONTROLLER_SERVICE_TYPE}"
+
+  ingressClassResource:
+    name: "${INGRESS_CONTROLLER_CLASS_RESOURCE_NAME}"
+    enabled: true
+    default: true
+EOF
+
+  echo "✅ nginx-Infrastructure values.local.yaml generated."
+
 else
   echo "❌ Unknown target: $1 (expected 'backend' or 'frontend')"
   exit 1
+fi
+
+# Add the ingress-nginx Helm repo if not already present
+if ! helm repo list | grep -q "^${INGRESS_REPO_NAME}"; then
+  helm repo add "${INGRESS_REPO_NAME}" "${INGRESS_REPO_URL}"
+  helm repo update
 fi
