@@ -12,7 +12,7 @@ BACKEND_REPOSITORY_URL="${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${BACKEND_REPOS
 
 # Argument validation
 if [ -z "$1" ]; then
-  echo "❌ Missing argument: please specify 'backend' or 'frontend'"
+  echo "❌ Missing argument: please specify 'backend' or 'frontend' or 'nginx'"
   exit 1
 fi
 
