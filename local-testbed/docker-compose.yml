@@ -46,6 +46,20 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
 
 
+  lambda-mock:
+    build:
+      context: ./lambda-mock
+    depends_on:
+      - s3-init
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ENDPOINT: ${AWS_ENDPOINT}
+      SQS_QUEUE_URL: ${SQS_QUEUE_URL}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+
+      
   backend:
     build:
       context: ../app/backend
@@ -77,18 +91,6 @@ services:
     ports:
     - "${FRONTEND_PORT}:${FRONTEND_PORT}"
 
-  lambda-mock:
-    build:
-      context: ./lambda-mock
-    depends_on:
-      - s3-init
-    environment:
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      AWS_REGION: ${AWS_REGION}
-      AWS_ENDPOINT: ${AWS_ENDPOINT}
-      SQS_QUEUE_URL: ${SQS_QUEUE_URL}
-      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
 
 volumes:
   pgdata:

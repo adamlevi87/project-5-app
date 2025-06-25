@@ -46,37 +46,6 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
 
 
-  backend:
-    build:
-      context: ../app/backend
-    depends_on:
-      - postgres
-      - localstack
-    ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}"
-    environment:
-      DB_HOST: ${DB_HOST}
-      DB_PORT: ${POSTGRES_PORT}
-      DB_USER: ${POSTGRES_USER}
-      DB_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_NAME: ${POSTGRES_DB}
-      AWS_REGION: ${AWS_REGION}
-      SQS_QUEUE_URL: ${SQS_QUEUE_URL}
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-      BACKEND_HOST: ${BACKEND_HOST}
-
-  frontend:
-    build:
-      context: ../app/frontend
-      dockerfile: Dockerfile
-      args:
-        REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL}
-    depends_on:
-    - backend
-    ports:
-    - "${FRONTEND_PORT}:${FRONTEND_PORT}"
-
   lambda-mock:
     build:
       context: ./lambda-mock
@@ -89,6 +58,38 @@ services:
       AWS_ENDPOINT: ${AWS_ENDPOINT}
       SQS_QUEUE_URL: ${SQS_QUEUE_URL}
       S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+
+
+  # backend:
+  #   build:
+  #     context: ../app/backend
+  #   depends_on:
+  #     - postgres
+  #     - localstack
+  #   ports:
+  #     - "${BACKEND_PORT}:${BACKEND_PORT}"
+  #   environment:
+  #     DB_HOST: ${DB_HOST}
+  #     DB_PORT: ${POSTGRES_PORT}
+  #     DB_USER: ${POSTGRES_USER}
+  #     DB_PASSWORD: ${POSTGRES_PASSWORD}
+  #     DB_NAME: ${POSTGRES_DB}
+  #     AWS_REGION: ${AWS_REGION}
+  #     SQS_QUEUE_URL: ${SQS_QUEUE_URL}
+  #     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+  #     AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+  #     BACKEND_HOST: ${BACKEND_HOST}
+
+  # frontend:
+  #   build:
+  #     context: ../app/frontend
+  #     dockerfile: Dockerfile
+  #     args:
+  #       REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL}
+  #   depends_on:
+  #   - backend
+  #   ports:
+  #   - "${FRONTEND_PORT}:${FRONTEND_PORT}"
 
 volumes:
   pgdata:
