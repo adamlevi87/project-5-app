@@ -29,7 +29,7 @@ image:
   pullPolicy: IfNotPresent
 
 service:
-  type:"$BACKEND_SERVICE_TYPE"
+  type: "$BACKEND_SERVICE_TYPE"
   port: "$BACKEND_PORT"
 
 containerPort: "$BACKEND_PORT"
