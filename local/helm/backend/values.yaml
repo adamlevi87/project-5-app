@@ -1,0 +1,14 @@
+image:
+  repository: 192.168.241.128:5000/backend
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3000
+
+containerPort: 3000
+
+ingress:
+  enabled: true
+  host: backend.local
