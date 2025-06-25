@@ -1,14 +1,14 @@
 image:
-  repository: 192.168.241.128:5000/backend
-  tag: latest
+  repository: ""        # Should be overridden by env-specific file
+  tag: ""               # Optional: could default to "latest"
   pullPolicy: IfNotPresent
 
 service:
-  type: ClusterIP
-  port: 3000
+  type: ClusterIP       # Could stay default
+  port: null            # Must be overridden
 
-containerPort: 3000
+containerPort: null     # Must be overridden
 
 ingress:
   enabled: true
-  host: backend.local
+  host: ""              # Must be overridden
