@@ -21,8 +21,11 @@ spec:
           ports:
             - containerPort: {{ required "containerPort is required" .Values.containerPort }}
           env:
-            - name: DB_HOST
-              value: {{ required "db.host is required" .Values.db.host }}
+          {{- range $key, $value := .Values.envSecrets }}
+            - name: {{ $key }}
+              value: "{{ required (printf "Missing required value for envSecrets.%s" $key) $value }}"
+          {{- end }}
+
           envFrom:
             - secretRef:
                 name: {{ include "common.fullname" . }}-env
