@@ -29,7 +29,7 @@ image:
   pullPolicy: IfNotPresent
 
 service:
-  type :"$BACKEND_SERVICE_TYPE"
+  type:"$BACKEND_SERVICE_TYPE"
   port: "$BACKEND_PORT"
 
 containerPort: "$BACKEND_PORT"
@@ -38,8 +38,7 @@ ingress:
   enabled: "${BACKEND_INGRESS_ENABLED}"
   host: "$BACKEND_HOST.local"
   annotations:
-    rewriteTarget: "$BACKEND_REWRITE_TARGET"
-    rewriteValue: "$BACKEND_REWRITE_VALUE"
+    "$BACKEND_REWRITE_TARGET": "$BACKEND_REWRITE_VALUE"
 
 envSecrets:
     AWS_REGION: "$AWS_REGION"

@@ -12,6 +12,4 @@ containerPort: null     # Must be overridden
 ingress:
   enabled: true
   host: ""              # Must be overridden
-  annotations:
-    rewriteTarget: null    # Must be overridden
-    rewriteValue: null     # Must be overridden
+  annotations: {}       # Must be overridden
