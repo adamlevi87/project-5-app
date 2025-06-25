@@ -6,7 +6,9 @@ metadata:
   labels:
     {{ include (printf "%s.labels" .Chart.Name) . }}
   annotations:
-    {{ required "ingress.annotations.rewriteTarget is required" .Values.ingress.annotations.rewriteTarget }}: "{{ required "ingress.annotations.rewriteValue is required" .Values.ingress.annotations.rewriteValue }}"
+    {{- range $key, $value := .Values.ingress.annotations }}
+      {{ $key }}: {{ required (printf "Missing value for annotation.%s" $key) $value | quote }}  
+    {{- end }}
 spec:
   rules:
     - host: {{ required "ingress.host is required" .Values.ingress.host }}
