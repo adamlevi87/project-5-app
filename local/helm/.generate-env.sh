@@ -9,7 +9,7 @@ set +a
 REACT_APP_BACKEND_URL="http://${BACKEND_HOST}:${BACKEND_PORT}"
 SQS_QUEUE_URL="http://${LOCALSTACK_HOST_EXTERNAL}:${LOCALSTACK_PORT}/000000000000/${QUEUE_NAME}"
 BACKEND_REPOSITORY_URL="${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${BACKEND_REPOSITORY_NAME}"
-
+FRONTEND_REPOSITORY_URL="${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${FRONTEND_REPOSITORY_NAME}"
 # Argument validation
 if [ -z "$1" ]; then
   echo "❌ Missing argument: please specify 'backend' or 'frontend' or 'nginx'"
@@ -66,18 +66,22 @@ elif [ "$1" == "frontend" ]; then
 
   cat <<EOF > ./frontend/values.local.yaml
 image:
-  repository: "192.168.241.128:5000/frontend"
-  tag: "latest"
+  repository: "${FRONTEND_REPOSITORY_URL}"
+  tag: "${FRONTEND_REPOSITORY_TAG}"
   pullPolicy: IfNotPresent
 
 service:
+  type: "$FRONTEND_SERVICE_TYPE"
   port: "$FRONTEND_PORT"
 
 containerPort: "$FRONTEND_PORT"
 
 ingress:
-  enabled: true
-  host: "frontend.local"
+  enabled: "${FRONTEND_INGRESS_ENABLED}"
+  host: "${FRONTEND_HOST}.local"
+  ingressControllerClassResourceName: "${INGRESS_CONTROLLER_CLASS_RESOURCE_NAME}"
+  annotations:
+    "${FRONTEND_REWRITE_TARGET}": "${FRONTEND_REWRITE_VALUE}"
 
 envSecrets:
   REACT_APP_BACKEND_URL: "$REACT_APP_BACKEND_URL"
