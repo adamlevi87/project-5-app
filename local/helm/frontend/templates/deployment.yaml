@@ -12,7 +12,7 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ include "common.fullname" . }}
+        {{ include "common.labels" . | nindent 8 }}
     spec:
       containers:
         - name: frontend
