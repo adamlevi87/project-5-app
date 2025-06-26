@@ -37,6 +37,7 @@ ingress:
   enabled: "${BACKEND_INGRESS_ENABLED}"
   host: "${BACKEND_HOST_ADDRESS}.local"
   ingressControllerClassResourceName: "${INGRESS_CONTROLLER_CLASS_RESOURCE_NAME}"
+  backendIngressPath: "${BACKEND_INGRESS_PATH}"
   annotations:
     "${BACKEND_REWRITE_TARGET}": "${BACKEND_REWRITE_VALUE}"
 
