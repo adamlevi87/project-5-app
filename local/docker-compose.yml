@@ -1,5 +1,7 @@
 #version: '3.9'
 services:
+
+
   postgres:
     image: postgres:${POSTGRES_VERSION}
     environment:
@@ -12,7 +14,7 @@ services:
     volumes:
       - ./postgres/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
       - pgdata:/var/lib/postgresql/data
-      
+
 
   localstack:
     image: ${LOCALSTACK_IMAGE}
@@ -66,7 +68,7 @@ services:
       SQS_QUEUE_URL: ${SQS_QUEUE_URL}
       S3_BUCKET_NAME: ${S3_BUCKET_NAME}
 
-
+      
   # backend:
   #   build:
   #     context: ../app/backend
@@ -87,17 +89,19 @@ services:
   #     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
   #     AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
   #     BACKEND_HOST_ADDRESS: ${BACKEND_HOST_ADDRESS}
+  #     FRONTEND_HOST_ADDRESS: ${FRONTEND_HOST_ADDRESS}
 
   # frontend:
   #   build:
   #     context: ../app/frontend
   #     dockerfile: Dockerfile
-  #     args:
-  #       REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL}
   #   depends_on:
   #   - backend
   #   ports:
   #   - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+  #   environment:
+  #     BACKEND_URL: ${REACT_APP_BACKEND_URL}
+
 
 volumes:
   pgdata:
