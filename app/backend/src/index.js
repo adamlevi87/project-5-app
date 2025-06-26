@@ -12,11 +12,11 @@ app.use(express.json()); //
 
 const origins = ['http://localhost'];
 
-// Log what BACKEND_HOST is (for debugging)
-console.log('CORS BACKEND_HOST:', process.env.BACKEND_HOST);
+// Log what BACKEND_HOST_ADDRESS is (for debugging)
+console.log('CORS BACKEND_HOST_ADDRESS:', process.env.BACKEND_HOST_ADDRESS);
 
-if (process.env.BACKEND_HOST) {
-  origins.push(`http://${process.env.BACKEND_HOST}`);
+if (process.env.BACKEND_HOST_ADDRESS) {
+  origins.push(`http://${process.env.BACKEND_HOST_ADDRESS}`);
 }
 
 // Log what FRONTEND_HOST is (for debugging)
