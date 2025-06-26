@@ -19,11 +19,11 @@ if (process.env.BACKEND_HOST_ADDRESS) {
   origins.push(`http://${process.env.BACKEND_HOST_ADDRESS}`);
 }
 
-// Log what FRONTEND_HOST is (for debugging)
-console.log('CORS FRONEND_HOST_ADDRESS:', process.env.FRONEND_HOST_ADDRESS);
+// Log what FRONTEND_HOST_ADDRESS is (for debugging)
+console.log('CORS FRONTEND_HOST_ADDRESS:', process.env.FRONTEND_HOST_ADDRESS);
 
-if (process.env.FRONEND_HOST_ADDRESS) {
-  origins.push(`http://${process.env.FRONEND_HOST_ADDRESS}`);
+if (process.env.FRONTEND_HOST_ADDRESS) {
+  origins.push(`http://${process.env.FRONTEND_HOST_ADDRESS}`);
 }
 
 app.use(cors({ origin: origins }));

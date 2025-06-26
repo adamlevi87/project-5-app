@@ -5,7 +5,7 @@ metadata:
   labels:
     {{ include "common.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.backendReplicaCount | default 1 }}
+  replicas: {{ .Values.replicaCount | default 1 }}
   selector:
     matchLabels:
       app: {{ include "common.fullname" . }}
@@ -15,7 +15,7 @@ spec:
         app: {{ include "common.fullname" . }}
     spec:
       containers:
-        - name: backend
+        - name: frontend
           image: "{{ required "image.repository is required" .Values.image.repository }}:{{ required "image.tag is required"  .Values.image.tag }}"
           imagePullPolicy: {{ required "image.pullPolicy is required" .Values.image.pullPolicy }}
           ports:

@@ -12,4 +12,5 @@ containerPort: null     # Must be overridden
 ingress:
   enabled: true
   host: ""              # Must be overridden
+  ingressControllerClassResourceName: "" # Must be overridden
   annotations: {}       # Must be overridden
