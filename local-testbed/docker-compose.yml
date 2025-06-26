@@ -39,7 +39,7 @@ services:
         echo "Waiting for LocalStack to be ready...";
         max_retries=40
         count=0
-        until curl -s http://${LOCALSTACK_HOST}:${LOCALSTACK_PORT}/_localstack/health | grep "\"s3\": \"running\"" > /dev/null; do
+        until curl -s http://${LOCALSTACK_HOST}:${LOCALSTACK_PORT}/_localstack/health | grep "\"s3\": \"available\"" > /dev/null; do
           sleep 2
           count=$$((count + 1))
           if [ $$count -ge $$max_retries ]; then
