@@ -7,7 +7,7 @@ INDEX_HTML="/usr/share/nginx/html/index.html"
 echo "Injecting runtime config into $CONFIG_PATH"
 cat <<EOF > "$CONFIG_PATH"
 window.RUNTIME_CONFIG = {
-  BACKEND_URL: "${BACKEND_URL}"
+  BACKEND_URL: "${REACT_APP_BACKEND_URL}"
 };
 EOF
 
