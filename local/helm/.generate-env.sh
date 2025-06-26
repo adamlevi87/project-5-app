@@ -29,7 +29,7 @@ image:
 
 service:
   type: "${BACKEND_SERVICE_TYPE}"
-  port: "${BACKEND_PORT}"
+  port: "${INGRESS_CONTROLLER_TARGET_PORT_AND_SERVICES_PORT}"
 
 containerPort: "${BACKEND_PORT}"
 
@@ -74,7 +74,7 @@ image:
 
 service:
   type: "${FRONTEND_SERVICE_TYPE}"
-  port: "${FRONTEND_PORT}"
+  port: "${INGRESS_CONTROLLER_TARGET_PORT_AND_SERVICES_PORT}"
 
 containerPort: "${FRONTEND_PORT}"
 
@@ -97,7 +97,11 @@ EOF
 # === nginx values ===
 elif [ "$1" == "nginx" ]; then
   echo "🔧 Generating values.local.yaml for nginx..."
-
+  # Add the ingress-nginx Helm repo if not already present
+  if ! helm repo list | grep -q "^${INGRESS_REPO_NAME}"; then
+    helm repo add "${INGRESS_REPO_NAME}" "${INGRESS_REPO_URL}"
+    helm repo update
+  fi
   cat <<EOF > ./infra/ingress-nginx/values.local.yaml
 controller:
   service:
@@ -116,8 +120,3 @@ else
   exit 1
 fi
 
-# Add the ingress-nginx Helm repo if not already present
-if ! helm repo list | grep -q "^${INGRESS_REPO_NAME}"; then
-  helm repo add "${INGRESS_REPO_NAME}" "${INGRESS_REPO_URL}"
-  helm repo update
-fi
