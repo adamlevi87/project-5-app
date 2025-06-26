@@ -21,6 +21,8 @@ if [ "$1" == "backend" ]; then
   echo "🔧 Generating values.local.yaml for backend..."
   SQS_QUEUE_URL="http://${LOCALSTACK_HOST_EXTERNAL}:${LOCALSTACK_PORT}/000000000000/${QUEUE_NAME}"
   BACKEND_REPOSITORY_URL="${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${BACKEND_REPOSITORY_NAME}"
+  BACKEND_HOST_ADDRESS="${BACKEND_HOST_ADDRESS}.local"
+  FRONTEND_HOST_ADDRESS="${FRONTEND_HOST_ADDRESS}.local"
   cat <<EOF > ./backend/values.local.yaml
 image:
   repository: "${BACKEND_REPOSITORY_URL}"
@@ -35,7 +37,7 @@ containerPort: "${BACKEND_PORT}"
 
 ingress:
   enabled: "${BACKEND_INGRESS_ENABLED}"
-  host: "${BACKEND_HOST_ADDRESS}.local"
+  host: "${BACKEND_HOST_ADDRESS}"
   ingressControllerClassResourceName: "${INGRESS_CONTROLLER_CLASS_RESOURCE_NAME}"
   backendIngressPath: "${BACKEND_INGRESS_PATH}"
   annotations:
@@ -67,6 +69,7 @@ elif [ "$1" == "frontend" ]; then
   echo "🔧 Generating values.local.yaml for frontend..."
   REACT_APP_BACKEND_URL="http://${BACKEND_HOST_ADDRESS}:${BACKEND_PORT_INGRESS_CONTROLLER}"
   FRONTEND_REPOSITORY_URL="${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${FRONTEND_REPOSITORY_NAME}"
+  FRONTEND_HOST_ADDRESS="${FRONTEND_HOST_ADDRESS}.local"
   cat <<EOF > ./frontend/values.local.yaml
 image:
   repository: "${FRONTEND_REPOSITORY_URL}"
@@ -81,7 +84,7 @@ containerPort: "${FRONTEND_PORT}"
 
 ingress:
   enabled: "${FRONTEND_INGRESS_ENABLED}"
-  host: "${FRONTEND_HOST_ADDRESS}.local"
+  host: "${FRONTEND_HOST_ADDRESS}"
   ingressControllerClassResourceName: "${INGRESS_CONTROLLER_CLASS_RESOURCE_NAME}"
   frontendIngressPath: "${FRONTEND_INGRESS_PATH}"
   annotations:
