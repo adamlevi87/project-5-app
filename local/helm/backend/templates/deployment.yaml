@@ -8,7 +8,7 @@ spec:
   replicas: {{ .Values.replicaCount | default 1 }}
   selector:
     matchLabels:
-      app: {{ include "common.fullname" . }}
+      {{ include "common.labels" . | nindent 6 }}
   template:
     metadata:
       labels:
