@@ -81,8 +81,9 @@ containerPort: "${FRONTEND_PORT}"
 
 ingress:
   enabled: "${FRONTEND_INGRESS_ENABLED}"
-  host: "${FRONTEND_HOST}.local"
+  host: "${FRONTEND_HOST_ADDRESS}.local"
   ingressControllerClassResourceName: "${INGRESS_CONTROLLER_CLASS_RESOURCE_NAME}"
+  frontendIngressPath: "${FRONTEND_INGRESS_PATH}"
   annotations:
     "${FRONTEND_REWRITE_TARGET}": "${FRONTEND_REWRITE_VALUE}"
 
