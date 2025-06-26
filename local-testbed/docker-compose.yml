@@ -94,12 +94,12 @@ services:
     build:
       context: ../app/frontend
       dockerfile: Dockerfile
-      args:
-        REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL}
     depends_on:
     - backend
     ports:
     - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    environment:
+      BACKEND_URL: ${REACT_APP_BACKEND_URL}
 
 
 volumes:

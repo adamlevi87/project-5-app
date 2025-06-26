@@ -12,8 +12,8 @@ RUN npm install
 # Copy the rest of the source
 COPY . .
 
-# Inject build-time env
-ARG REACT_APP_BACKEND_URL
+# Build with a dummy value (can use any default here)
+ARG REACT_APP_BACKEND_URL=http://localhost:3000
 ENV REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL
 
 # Build the app
@@ -22,11 +22,15 @@ RUN npm run build
 # Stage 2: Serve static app with nginx
 FROM nginx:alpine
 
-# Copy optimized nginx config if needed (optional)
-# COPY nginx.conf /etc/nginx/nginx.conf
-
 # Copy the static build
 COPY --from=builder /app/build /usr/share/nginx/html
 
+# Copy entrypoint script
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Copy optimized nginx config if needed (optional)
+# COPY nginx.conf /etc/nginx/nginx.conf
+
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/entrypoint.sh"]

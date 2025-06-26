@@ -9,7 +9,7 @@ function App() {
     setStatus('Sending...');
 
     try {
-      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/submit`, {
+      const res = await fetch(`${window.RUNTIME_CONFIG?.BACKEND_URL}/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text }),
