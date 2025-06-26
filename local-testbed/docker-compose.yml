@@ -35,7 +35,6 @@ services:
     depends_on:
       - localstack
     entrypoint: >
-      entrypoint: >
       sh -c '
         echo "Waiting for LocalStack to be ready...";
         max_retries=40
