@@ -108,7 +108,7 @@ elif [ "$1" == "nginx" ]; then
     helm repo add "${INGRESS_REPO_NAME}" "${INGRESS_REPO_URL}"
     helm repo update
   fi
-  cat <<EOF > ./infra/ingress-nginx/values.local.yaml
+  cat <<EOF > ./helm/nfra/ingress-nginx/values.local.yaml
 controller:
   service:
     type: "${INGRESS_CONTROLLER_SERVICE_TYPE}"
