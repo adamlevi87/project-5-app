@@ -15,7 +15,7 @@ spec:
         {{ include "common.labels" . | nindent 8 }}
     spec:
       containers:
-        - name: backend
+        - name: {{ include "common.fullname" . }}
           image: "{{ required "image.repository is required" .Values.image.repository }}:{{ required "image.tag is required"  .Values.image.tag }}"
           imagePullPolicy: {{ required "image.pullPolicy is required" .Values.image.pullPolicy }}
           ports:

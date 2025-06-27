@@ -15,7 +15,7 @@ spec:
     - host: {{ required "ingress.host is required" .Values.ingress.host }}
       http:
         paths:
-          - path: {{ required "ingress.backendIngressPath is required" .Values.ingress.backendIngressPath}}
+          - path: {{ required "ingress.ingressPath is required" .Values.ingress.ingressPath}}
             pathType: Prefix
             backend:
               service:

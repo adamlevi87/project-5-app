@@ -39,7 +39,7 @@ ingress:
   enabled: "${BACKEND_INGRESS_ENABLED}"
   host: "${BACKEND_HOST_ADDRESS}"
   ingressControllerClassResourceName: "${INGRESS_CONTROLLER_CLASS_RESOURCE_NAME}"
-  backendIngressPath: "${BACKEND_INGRESS_PATH}"
+  ingressPath: "${BACKEND_INGRESS_PATH}"
   annotations:
     "${BACKEND_REWRITE_TARGET}": "${BACKEND_REWRITE_VALUE}"
 
@@ -87,7 +87,7 @@ ingress:
   enabled: "${FRONTEND_INGRESS_ENABLED}"
   host: "${FRONTEND_HOST_ADDRESS}"
   ingressControllerClassResourceName: "${INGRESS_CONTROLLER_CLASS_RESOURCE_NAME}"
-  frontendIngressPath: "${FRONTEND_INGRESS_PATH}"
+  ingressPath: "${FRONTEND_INGRESS_PATH}"
   annotations:
     "${FRONTEND_REWRITE_TARGET}": "${FRONTEND_REWRITE_VALUE}"
 
