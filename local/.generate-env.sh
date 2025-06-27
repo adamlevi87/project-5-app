@@ -23,7 +23,7 @@ if [ "$1" == "backend" ]; then
   FRONTEND_HOST_ADDRESS="${FRONTEND_HOST_ADDRESS}.local"
   SQS_QUEUE_URL="http://${LOCALSTACK_HOST_EXTERNAL}:${LOCALSTACK_PORT}/000000000000/${QUEUE_NAME}"
   BACKEND_REPOSITORY_URL="${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${BACKEND_REPOSITORY_NAME}"
-  cat <<EOF > ./base-app/values.local.yaml
+  cat <<EOF > ./helm/base-app/values.local.yaml
 image:
   repository: "${BACKEND_REPOSITORY_URL}"
   tag: "${BACKEND_REPOSITORY_TAG}"
@@ -71,7 +71,7 @@ elif [ "$1" == "frontend" ]; then
   FRONTEND_HOST_ADDRESS="${FRONTEND_HOST_ADDRESS}.local"
   FRONTEND_REPOSITORY_URL="${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${FRONTEND_REPOSITORY_NAME}"
   REACT_APP_BACKEND_URL="http://${BACKEND_HOST_ADDRESS}:${INGRESS_CONTROLLER_EXTERNAL_PORT_HTTP}"
-  cat <<EOF > ./base-app/values.local.yaml
+  cat <<EOF > ./helm/base-app/values.local.yaml
 image:
   repository: "${FRONTEND_REPOSITORY_URL}"
   tag: "${FRONTEND_REPOSITORY_TAG}"
@@ -128,7 +128,7 @@ EOF
 elif [ "$1" == "docker-compose" ]; then
   echo "🔧 Generating .env for docker-compose..."
 
-  cat <<EOF > ./infra/ingress-nginx/values.local.yaml
+  cat <<EOF > ./helm/infra/ingress-nginx/values.local.yaml
 # Composed variables
 # Dynamic Variables
 REACT_APP_BACKEND_URL="http://${BACKEND_HOST_ADDRESS}:${BACKEND_PORT}"
