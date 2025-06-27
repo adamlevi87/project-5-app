@@ -120,11 +120,10 @@ controller:
     name: "${INGRESS_CONTROLLER_CLASS_RESOURCE_NAME}"
     enabled: true
     default: true
-
+EOF
   echo "✅ nginx-Infrastructure values.local.yaml generated."
 
 else
   echo "❌ Unknown target: $1 (expected 'backend' or 'frontend')"
   exit 1
 fi
-
