@@ -43,28 +43,29 @@ deploy_hybrid() {
     -f ./helm/infra/ingress-nginx/values.local.yaml
 
   echo "[~] Waiting for ingress controller admission webhook service to become ready..."
-
-  for i in {1..20}; do
-    if kubectl get svc ingress-controller-ingress-nginx-controller-admission -n ingress-nginx >/dev/null 2>&1; then
-      # Check if it has populated endpoints
-      if kubectl get endpointslice -n ingress-nginx \
-      -l kubernetes.io/service-name=ingress-controller-ingress-nginx-controller-admission \
-      -o jsonpath='{.items[*].endpoints[*].addresses[*]}' | grep -q .; then
-        echo "[✓] Admission webhook service is ready."
-        break
-      fi
-    fi
-    echo "[...] Still waiting for admission webhook readiness... ($i/20)"
-    sleep 2
-    if [ "$i" -eq 20 ]; then
-      echo "[✗] Timed out waiting for ingress admission webhook to become ready."
-      exit 1
-    fi
-  done  
-
   echo "[+] Generating and applying backend config..."
   ./.generate-env.sh backend
-  helm upgrade --install backend ./helm/base-app/ -f ./helm/base-app/values.local.yaml
+  
+  for i in {1..20}; do
+    if helm upgrade --install backend ./helm/base-app/ -f ./helm/base-app/values.local.yaml 2> helm.err.log; then
+      echo "[✓] Backend installed successfully."
+      break
+    fi
+
+    if grep -q "failed calling webhook.*connect: connection refused" helm.err.log; then
+      echo "[...] Admission webhook not ready yet, retrying... ($i/20)"
+      sleep 2
+    else
+      echo "[✗] Helm failed with a different error:"
+      cat helm.err.log
+      exit 1
+    fi
+
+    if [[ "$i" -eq 20 ]]; then
+      echo "[✗] Timed out waiting for admission webhook readiness."
+      exit 1
+    fi
+  done
 
   echo "[+] Generating and applying frontend config..."
   ./.generate-env.sh frontend
