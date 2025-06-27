@@ -112,12 +112,14 @@ elif [ "$1" == "nginx" ]; then
 controller:
   service:
     type: "${INGRESS_CONTROLLER_SERVICE_TYPE}"
+  nodePorts:
+      http: "${INGRESS_CONTROLLER_EXTERNAL_PORT_HTTP}"      
+      https: "${INGRESS_CONTROLLER_EXTERNAL_PORT_HTTPS}"
 
   ingressClassResource:
     name: "${INGRESS_CONTROLLER_CLASS_RESOURCE_NAME}"
     enabled: true
     default: true
-EOF
 
   echo "✅ nginx-Infrastructure values.local.yaml generated."
 

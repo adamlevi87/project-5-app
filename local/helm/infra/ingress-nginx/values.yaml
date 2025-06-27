@@ -1,6 +1,9 @@
 controller:
   service:
     type: null          # Must be overridden
+    nodePorts:
+      http: null       # Must be overridden
+      https: null      # Must be overridden
 
   ingressClassResource:
     name: null         # Must be overridden
