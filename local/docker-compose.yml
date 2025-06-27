@@ -3,6 +3,7 @@ services:
 
 
   postgres:
+    profiles: ["docker_only","docker_and_kubernetes"]
     image: postgres:${POSTGRES_VERSION}
     environment:
       POSTGRES_TABLE: ${POSTGRES_TABLE}
@@ -17,6 +18,7 @@ services:
 
 
   localstack:
+    profiles: ["docker_only","docker_and_kubernetes"]
     image: ${LOCALSTACK_IMAGE}
     environment:
       SERVICES: ${LOCALSTACK_SERVICES}
@@ -30,6 +32,7 @@ services:
 
 
   s3-init:
+    profiles: ["docker_only","docker_and_kubernetes"]
     image: ${AWS_CLI_IMAGE}
     container_name: ${S3_CONTAINER_NAME}
     depends_on:
@@ -56,6 +59,7 @@ services:
 
 
   lambda-mock:
+    profiles: ["docker_only","docker_and_kubernetes"]
     build:
       context: ./lambda-mock
     depends_on:
@@ -69,38 +73,40 @@ services:
       S3_BUCKET_NAME: ${S3_BUCKET_NAME}
 
       
-  # backend:
-  #   build:
-  #     context: ../app/backend
-  #   depends_on:
-  #     - postgres
-  #     - localstack
-  #   ports:
-  #     - "${BACKEND_PORT}:${BACKEND_PORT}"
-  #   environment:
-  #     DB_HOST: ${DB_HOST_DOCKER}
-  #     DB_PORT: ${POSTGRES_PORT}
-  #     DB_USER: ${POSTGRES_USER}
-  #     DB_PASSWORD: ${POSTGRES_PASSWORD}
-  #     DB_NAME: ${POSTGRES_DB}
-  #     POSTGRES_TABLE: ${POSTGRES_TABLE}
-  #     AWS_REGION: ${AWS_REGION}
-  #     SQS_QUEUE_URL: ${SQS_QUEUE_URL}
-  #     AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-  #     AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
-  #     BACKEND_HOST_ADDRESS: ${BACKEND_HOST_ADDRESS}
-  #     FRONTEND_HOST_ADDRESS: ${FRONTEND_HOST_ADDRESS}
+  backend:
+    profiles: ["docker_only"]
+    build:
+      context: ../app/backend
+    depends_on:
+      - postgres
+      - localstack
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    environment:
+      DB_HOST: ${DB_HOST_DOCKER}
+      DB_PORT: ${POSTGRES_PORT}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+      POSTGRES_TABLE: ${POSTGRES_TABLE}
+      AWS_REGION: ${AWS_REGION}
+      SQS_QUEUE_URL: ${SQS_QUEUE_URL}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      BACKEND_HOST_ADDRESS: ${BACKEND_HOST_ADDRESS}
+      FRONTEND_HOST_ADDRESS: ${FRONTEND_HOST_ADDRESS}
 
-  # frontend:
-  #   build:
-  #     context: ../app/frontend
-  #     dockerfile: Dockerfile
-  #   depends_on:
-  #   - backend
-  #   ports:
-  #   - "${FRONTEND_PORT}:${FRONTEND_PORT}"
-  #   environment:
-  #     BACKEND_URL: ${REACT_APP_BACKEND_URL}
+  frontend:
+    profiles: ["docker_only"]
+    build:
+      context: ../app/frontend
+      dockerfile: Dockerfile
+    depends_on:
+    - backend
+    ports:
+    - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    environment:
+      REACT_APP_BACKEND_URL: ${REACT_APP_BACKEND_URL}
 
 
 volumes:
