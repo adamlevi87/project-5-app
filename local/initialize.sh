@@ -17,7 +17,7 @@ cd "$(dirname "$0")"
 
 deploy_docker_only() {
   echo "[+] Generating .env for Docker Compose (full stack)..."
-  ./generate-env.sh docker-compose
+  ./.generate-env.sh docker-compose
 
   echo "[+] Starting all services using Docker Compose with profile 'docker_only'..."
   docker compose --profile docker_only up --build --detach
@@ -30,24 +30,24 @@ uninstall_docker_only() {
 
 deploy_hybrid() {
   echo "[+] Generating .env for Docker Compose (infra only)..."
-  ./generate-env.sh docker-compose
+  ./.generate-env.sh docker-compose
 
   echo "[+] Starting infra using Docker Compose with profile 'docker_and_kubernetes'..."
   docker compose --profile docker_and_kubernetes up --build --detach
 
   echo "[+] Generating and applying ingress controller config..."
-  ./generate-env.sh nginx
+  ./.generate-env.sh nginx
   helm upgrade --install ingress-controller ingress-nginx/ingress-nginx \
     --namespace ingress-nginx \
     --create-namespace \
     -f ./helm/infra/ingress-nginx/values.local.yaml
 
   echo "[+] Generating and applying backend config..."
-  ./generate-env.sh backend
+  ./.generate-env.sh backend
   helm upgrade --install backend ./helm/base-app/ -f ./helm/base-app/values.local.yaml
 
   echo "[+] Generating and applying frontend config..."
-  ./generate-env.sh frontend
+  ./.generate-env.sh frontend
   helm upgrade --install frontend ./helm/base-app/ -f ./helm/base-app/values.local.yaml
 }
 
