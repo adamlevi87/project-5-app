@@ -42,6 +42,23 @@ deploy_hybrid() {
     --create-namespace \
     -f ./helm/infra/ingress-nginx/values.local.yaml
 
+  echo "[~] Waiting for ingress controller pod to be ready..."
+  kubectl rollout status deployment/ingress-controller-ingress-nginx-controller -n ingress-nginx
+
+  echo "[~] Waiting for admission webhook service to become reachable..."
+  for i in {1..20}; do
+    if kubectl get svc ingress-controller-ingress-nginx-controller-admission -n ingress-nginx >/dev/null 2>&1; then
+      IP=$(kubectl get svc ingress-controller-ingress-nginx-controller-admission -n ingress-nginx -o jsonpath='{.spec.clusterIP}')
+      PORT=$(kubectl get svc ingress-controller-ingress-nginx-controller-admission -n ingress-nginx -o jsonpath='{.ports[0].port}')
+      if timeout 1 bash -c "</dev/tcp/$IP/$PORT" 2>/dev/null; then
+        echo "[✓] Admission webhook is now reachable."
+        break
+      fi
+    fi
+    echo "[...] Waiting for admission webhook service... ($i/20)"
+    sleep 2
+  done
+
   echo "[+] Generating and applying backend config..."
   ./.generate-env.sh backend
   helm upgrade --install backend ./helm/base-app/ -f ./helm/base-app/values.local.yaml
