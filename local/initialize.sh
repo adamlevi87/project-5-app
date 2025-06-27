@@ -47,7 +47,8 @@ deploy_hybrid() {
   for i in {1..20}; do
     if kubectl get svc ingress-controller-ingress-nginx-controller-admission -n ingress-nginx >/dev/null 2>&1; then
       # Check if it has populated endpoints
-      if kubectl get endpoints ingress-controller-ingress-nginx-controller-admission -n ingress-nginx -o jsonpath='{.subsets}' | grep -q 'addresses'; then
+      if kubectl get endpointslice -n ingress-nginx -l kubernetes.io/service-name=ingress-controller-ingress-nginx-controller-admission  -o jsonpath='{.items[*].endpoints[*].addresses[*]}'
+ ; then
         echo "[✓] Admission webhook service is ready."
         break
       fi
