@@ -128,7 +128,7 @@ EOF
 elif [ "$1" == "docker-compose" ]; then
   echo "🔧 Generating .env for docker-compose..."
 
-  cat <<EOF > ./helm/infra/ingress-nginx/values.local.yaml
+  cat <<EOF > .env
 # Composed variables
 # Dynamic Variables
 REACT_APP_BACKEND_URL="http://${BACKEND_HOST_ADDRESS}:${BACKEND_PORT}"
