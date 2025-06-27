@@ -3,6 +3,7 @@ services:
 
 
   postgres:
+    profiles: ["docker_only","docker_and_kubernetes"]
     image: postgres:${POSTGRES_VERSION}
     environment:
       POSTGRES_TABLE: ${POSTGRES_TABLE}
@@ -17,6 +18,7 @@ services:
 
 
   localstack:
+    profiles: ["docker_only","docker_and_kubernetes"]
     image: ${LOCALSTACK_IMAGE}
     environment:
       SERVICES: ${LOCALSTACK_SERVICES}
@@ -30,6 +32,7 @@ services:
 
 
   s3-init:
+    profiles: ["docker_only","docker_and_kubernetes"]
     image: ${AWS_CLI_IMAGE}
     container_name: ${S3_CONTAINER_NAME}
     depends_on:
@@ -56,6 +59,7 @@ services:
 
 
   lambda-mock:
+    profiles: ["docker_only","docker_and_kubernetes"]
     build:
       context: ./lambda-mock
     depends_on:
@@ -70,6 +74,7 @@ services:
 
       
   backend:
+    profiles: ["docker_only"]
     build:
       context: ../app/backend
     depends_on:
@@ -92,6 +97,7 @@ services:
       FRONTEND_HOST_ADDRESS: ${FRONTEND_HOST_ADDRESS}
 
   frontend:
+    profiles: ["docker_only"]
     build:
       context: ../app/frontend
       dockerfile: Dockerfile
