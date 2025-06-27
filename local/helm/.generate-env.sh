@@ -112,7 +112,7 @@ elif [ "$1" == "nginx" ]; then
 controller:
   service:
     type: "${INGRESS_CONTROLLER_SERVICE_TYPE}"
-  nodePorts:
+    nodePorts:
       http: "${INGRESS_CONTROLLER_EXTERNAL_PORT_HTTP}"      
       https: "${INGRESS_CONTROLLER_EXTERNAL_PORT_HTTPS}"
 
