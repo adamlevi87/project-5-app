@@ -78,7 +78,7 @@ services:
   #   ports:
   #     - "${BACKEND_PORT}:${BACKEND_PORT}"
   #   environment:
-  #     DB_HOST: ${DB_HOST}
+  #     DB_HOST: ${DB_HOST_DOCKER}
   #     DB_PORT: ${POSTGRES_PORT}
   #     DB_USER: ${POSTGRES_USER}
   #     DB_PASSWORD: ${POSTGRES_PASSWORD}
