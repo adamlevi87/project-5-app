@@ -18,7 +18,7 @@ case "$1" in
   "$BACKEND_OPTION")
     # === Backend values ===
     echo "🔧 Generating ${BACKEND_RELEASE_NAME}.local.yaml for $BACKEND_OPTION..."
-    BACKEND_HOST_ADDRESS="${BACKEND_HOST_ADDRESS}.local"
+    BACKEND_HOST_ADDRESS="${DOCKER_COMPOSE_BACKEND_APP_SERVICE_NAME}.local"
     FRONTEND_HOST_ADDRESS="${FRONTEND_HOST_ADDRESS}.local"
     SQS_QUEUE_URL="http://${LOCALSTACK_HOST_EXTERNAL}:${LOCALSTACK_PORT}/000000000000/${QUEUE_NAME}"
     BACKEND_REPOSITORY_URL="${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${BACKEND_REPOSITORY_NAME}"
@@ -54,7 +54,7 @@ envSecrets:
   DB_PORT: "${POSTGRES_PORT}"
   DB_HOST: "${DB_HOST_EXTERNAL}"
   POSTGRES_TABLE: "${POSTGRES_TABLE}"
-  BACKEND_HOST_ADDRESS: "${BACKEND_HOST_ADDRESS}:${INGRESS_CONTROLLER_EXTERNAL_PORT_HTTP}"
+  BACKEND_HOST_ADDRESS: "${DOCKER_COMPOSE_BACKEND_APP_SERVICE_NAME}:${INGRESS_CONTROLLER_EXTERNAL_PORT_HTTP}"
   FRONTEND_HOST_ADDRESS: "${FRONTEND_HOST_ADDRESS}:${INGRESS_CONTROLLER_EXTERNAL_PORT_HTTP}"
   SQS_QUEUE_URL: "${SQS_QUEUE_URL}"
   
@@ -65,10 +65,10 @@ EOF
   "$FRONTEND_OPTION")
     # === Frontend values ===
     echo "🔧 Generating ${FRONTEND_RELEASE_NAME}.local.yaml for $FRONTEND_OPTION..."
-    BACKEND_HOST_ADDRESS="${BACKEND_HOST_ADDRESS}.local"
+    BACKEND_HOST_ADDRESS_EXTERNAL="${DOCKER_COMPOSE_BACKEND_APP_SERVICE_NAME}.local"
     FRONTEND_HOST_ADDRESS="${FRONTEND_HOST_ADDRESS}.local"
     FRONTEND_REPOSITORY_URL="${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${FRONTEND_REPOSITORY_NAME}"
-    REACT_APP_BACKEND_URL="http://${BACKEND_HOST_ADDRESS}:${INGRESS_CONTROLLER_EXTERNAL_PORT_HTTP}"
+    REACT_APP_BACKEND_URL="http://${BACKEND_HOST_ADDRESS_EXTERNAL}:${INGRESS_CONTROLLER_EXTERNAL_PORT_HTTP}"
     cat <<EOF > "$FRONTEND_HELM_FOLDER_PATH/${FRONTEND_RELEASE_NAME}.local.yaml"
 image:
   repository: "${FRONTEND_REPOSITORY_URL}"
@@ -95,7 +95,7 @@ envSecrets:
   REACT_APP_BACKEND_URL: "$REACT_APP_BACKEND_URL"
 EOF
 
-    echo "✅ ${FRONTEND_RELEASE_NAME}.local.yaml generated."
+    echo "✅ $FRONTEND_OPTION values.local.yaml generated."
     ;;
   "$NGINX_OPTION")
     # === nginx values ===
@@ -116,42 +116,19 @@ EOF
     echo "✅ $NGINX_OPTION-Infrastructure values.local.yaml generated."
     ;;
   "docker-compose")
-    # === docker-compose values ===
-    echo "🔧 Generating .env for docker-compose..."
-    cat <<EOF > .env
-# Composed variables
-# Dynamic Variables
-REACT_APP_BACKEND_URL="http://${BACKEND_HOST_ADDRESS}:${BACKEND_PORT}"
-SQS_QUEUE_URL="http://${LOCALSTACK_HOST}:${LOCALSTACK_PORT}/000000000000/${QUEUE_NAME}"
-AWS_ENDPOINT="http://${LOCALSTACK_HOST}:${LOCALSTACK_PORT}"
+    # === docker-compose values === (Creating Dynamic Variables)
+    REACT_APP_BACKEND_URL="http://${DOCKER_COMPOSE_BACKEND_APP_SERVICE_NAME}:${BACKEND_PORT}"
+    SQS_QUEUE_URL="http://${DOCKER_COMPOSE_LOCALSTACK_SERVICE_NAME}:${LOCALSTACK_PORT}/000000000000/${QUEUE_NAME}"
+    AWS_ENDPOINT="http://${DOCKER_COMPOSE_LOCALSTACK_SERVICE_NAME}:${LOCALSTACK_PORT}"
 
-# Other Vars
-POSTGRES_VERSION="${POSTGRES_VERSION}"
-POSTGRES_TABLE="${POSTGRES_TABLE}"
-POSTGRES_USER="${POSTGRES_USER}"
-POSTGRES_PASSWORD="${POSTGRES_PASSWORD}"
-POSTGRES_DB="${POSTGRES_DB}"
-POSTGRES_PORT="${POSTGRES_PORT}"
-LOCALSTACK_IMAGE="${LOCALSTACK_IMAGE}"
-LOCALSTACK_SERVICES="${LOCALSTACK_SERVICES}"
-QUEUE_NAME="${QUEUE_NAME}"
-LOCALSTACK_PORT="${LOCALSTACK_PORT}"
-AWS_CLI_IMAGE="${AWS_CLI_IMAGE}"
-S3_CONTAINER_NAME="${S3_CONTAINER_NAME}"
-LOCALSTACK_HOST="${LOCALSTACK_HOST}"
-AWS_REGION="${AWS_REGION}"
-S3_BUCKET_NAME="${S3_BUCKET_NAME}"
-AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}"
-AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}"
-BACKEND_PORT="${BACKEND_PORT}"
-DB_HOST_DOCKER="${DB_HOST_DOCKER}"
-BACKEND_HOST_ADDRESS="${BACKEND_HOST_ADDRESS}"
-FRONTEND_HOST_ADDRESS="${FRONTEND_HOST_ADDRESS}"
-FRONTEND_PORT="${FRONTEND_PORT}"
-EOF
-  
-    envsubst < ./docker/postgres/init-db.template.sql > ./docker/postgres/init-db.sql
-    echo "✅ docker-compose .env generated."
+    echo "🔧 Injecting variables into docker-compose.yml"
+    envsubst < ./docker-compose.yml.template > ./docker-compose.yml
+    echo "✅ docker-compose created using all the required variables."
+    
+    echo "🔧 Injecting variables into init-db.sql.yml"
+    envsubst < "${POSTGRES_FOLDER_PATH}/init-db.template.sql" > "${POSTGRES_FOLDER_PATH}/init-db.sql"
+    echo "✅ Postgres-init-db.sql generated."
+
     ;;
   *)
     echo "❌ Unknown target: $1 (expected '$BACKEND_OPTION' or '$FRONTEND_OPTION' or '$NGINX_OPTION' or 'docker-compose')"

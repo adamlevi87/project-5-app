@@ -20,10 +20,10 @@ ACTION=${ACTION:-deploy}
 
 cd "$(dirname "$0")"
 
-deploy_docker_only() {
-  echo "[+] Generating .env for Docker Compose (full stack)..."
+echo "[+] Generating docker-compose.yml"
   ./.generate-env.sh docker-compose
 
+deploy_docker_only() {
   echo "[+] Starting all services using Docker Compose with profile 'docker_only'..."
   docker compose --profile docker_only up --build --detach
 }
@@ -34,9 +34,6 @@ uninstall_docker_only() {
 }
 
 deploy_hybrid() {
-  echo "[+] Generating .env for Docker Compose (infra only)..."
-  ./.generate-env.sh docker-compose
-
   echo "[+] Starting infra using Docker Compose with profile 'docker_and_kubernetes'..."
   docker compose --profile docker_and_kubernetes up --build --detach
 
