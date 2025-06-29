@@ -27,8 +27,14 @@ services:
       - "${LOCALSTACK_PORT}:${LOCALSTACK_PORT}"
     volumes:
       - localstack:/var/lib/localstack
-      - ${LOCALSTACK_FOLDER_PATH}/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh
-    entrypoint: ["sh", "-c", "chmod +x /etc/localstack/init/ready.d/init-aws.sh && docker-entrypoint.sh"]
+      - ${LOCALSTACK_FOLDER_PATH}/init-aws.sh:/tmp/init-aws.sh:ro
+    entrypoint:
+    - sh
+    - -c
+    - |
+      cp /tmp/init-aws.sh /etc/localstack/init/ready.d/init-aws.sh
+      chmod +x /etc/localstack/init/ready.d/init-aws.sh
+      docker-entrypoint.sh
 
 
   ${DOCKER_COMPOSE_S3_INIT_SERVICE_NAME}:
