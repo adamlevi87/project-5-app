@@ -32,16 +32,10 @@ deploy:
         chartPath: ${FRONTEND_HELM_FOLDER_PATH}/
         valuesFiles:
           - ${FRONTEND_HELM_FOLDER_PATH}/${FRONTEND_RELEASE_NAME}.local.yaml
-        setValues:
-          image.repository: ${FRONTEND_REPOSITORY_NAME}
-          image.tag: ${FRONTEND_REPOSITORY_TAG}
       - name: ${BACKEND_REPOSITORY_NAME}
         chartPath: ${BACKEND_HELM_FOLDER_PATH}/
         valuesFiles:
           - ${BACKEND_HELM_FOLDER_PATH}/${BACKEND_RELEASE_NAME}.local.yaml
-        setValues:
-          image.repository: ${BACKEND_REPOSITORY_NAME}
-          image.tag: ${BACKEND_REPOSITORY_TAG}
 # portForward:
 #   - resourceType: service
 #     resourceName: backend
