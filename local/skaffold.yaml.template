@@ -12,6 +12,9 @@ build:
       context: ${FRONTEND_APP_FOLDER_PATH}
       docker:
         dockerfile: Dockerfile
+      tagPolicy:
+        customTemplate:
+          template: "latest"
       hooks:
         before:
           - command: ["sh", "-c", "./.generate-env.sh ${FRONTEND_OPTION}"]
@@ -19,6 +22,9 @@ build:
       context: ${BACKEND_APP_FOLDER_PATH}
       docker:
         dockerfile: Dockerfile
+      tagPolicy:
+        customTemplate:
+          template: "latest"
       hooks:
         before:
           - command: ["sh", "-c", "./.generate-env.sh ${BACKEND_OPTION}"]
