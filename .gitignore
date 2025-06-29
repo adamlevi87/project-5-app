@@ -4,3 +4,4 @@
 */helm/base-app/*.local.yaml
 helm.backend.err.log
 *skaffold.yaml
+*docker-compose.yml
