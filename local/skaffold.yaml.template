@@ -7,14 +7,14 @@ build:
     push: true
     useDockerCLI: true
     tryImportMissing: true
+  tagPolicy:
+    customTemplate:
+      template: "latest"
   artifacts:
     - image: ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${FRONTEND_REPOSITORY_NAME}
       context: ${FRONTEND_APP_FOLDER_PATH}
       docker:
         dockerfile: Dockerfile
-      tagPolicy:
-        customTemplate:
-          template: "latest"
       hooks:
         before:
           - command: ["sh", "-c", "./.generate-env.sh ${FRONTEND_OPTION}"]
@@ -22,9 +22,6 @@ build:
       context: ${BACKEND_APP_FOLDER_PATH}
       docker:
         dockerfile: Dockerfile
-      tagPolicy:
-        customTemplate:
-          template: "latest"
       hooks:
         before:
           - command: ["sh", "-c", "./.generate-env.sh ${BACKEND_OPTION}"]
