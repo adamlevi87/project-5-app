@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eo
+set -e
 
 # Load the base .env file
 set -a
