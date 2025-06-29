@@ -117,15 +117,15 @@ EOF
     ;;
   "docker-compose")
     # === docker-compose values === (Creating Dynamic Variables)
-    REACT_APP_BACKEND_URL="http://${DOCKER_COMPOSE_BACKEND_APP_SERVICE_NAME}:${BACKEND_PORT}"
-    SQS_QUEUE_URL="http://${DOCKER_COMPOSE_LOCALSTACK_SERVICE_NAME}:${LOCALSTACK_PORT}/000000000000/${QUEUE_NAME}"
-    AWS_ENDPOINT="http://${DOCKER_COMPOSE_LOCALSTACK_SERVICE_NAME}:${LOCALSTACK_PORT}"
+    export REACT_APP_BACKEND_URL="http://${DOCKER_COMPOSE_BACKEND_APP_SERVICE_NAME}:${BACKEND_PORT}"
+    export SQS_QUEUE_URL="http://${DOCKER_COMPOSE_LOCALSTACK_SERVICE_NAME}:${LOCALSTACK_PORT}/000000000000/${QUEUE_NAME}"
+    export AWS_ENDPOINT="http://${DOCKER_COMPOSE_LOCALSTACK_SERVICE_NAME}:${LOCALSTACK_PORT}"
 
     echo "🔧 Injecting variables into docker-compose.yml"
     envsubst < ./docker-compose.yml.template > ./docker-compose.yml
     echo "✅ docker-compose created using all the required variables."
     
-    echo "🔧 Injecting variables into init-db.sql.yml"
+    echo "🔧 Injecting variables into init-db.sql"
     envsubst < "${POSTGRES_FOLDER_PATH}/init-db.template.sql" > "${POSTGRES_FOLDER_PATH}/init-db.sql"
     echo "✅ Postgres-init-db.sql generated."
 
