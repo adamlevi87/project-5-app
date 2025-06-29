@@ -9,7 +9,7 @@ set +a
 
 # Argument validation
 if [ -z "$1" ]; then
-  echo "❌ Missing argument: please specify '$BACKENDOPTION' or '$FRONTENDOPTION' or '$NGINXOPTION' or 'docker-compose'"
+  echo "❌ Missing argument: please specify '$BACKEND_OPTION' or '$FRONTEND_OPTION' or '$NGINX_OPTION' or 'docker-compose'"
   exit 1
 fi
 

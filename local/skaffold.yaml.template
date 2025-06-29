@@ -9,27 +9,33 @@ build:
     tryImportMissing: true
   artifacts:
     - image: ${REPOSITORY_ADDRESS}/${FRONTEND_REPOSITORY_NAME}
-      context: ../app/frontend
+      context: ${FRONTEND_APP_FOLDER_PATH}
       docker:
         dockerfile: Dockerfile
+      hooks:
+        before:
+          - command: ["sh", "-c", "./.generate-env.sh ${FRONTEND_OPTION}"]
     - image: ${REPOSITORY_ADDRESS}/${BACKEND_REPOSITORY_NAME}
-      context: ../app/backend
+      context: ${BACKEND_APP_FOLDER_PATH}
       docker:
         dockerfile: Dockerfile
+      hooks:
+        before:
+          - command: ["sh", "-c", "./.generate-env.sh ${BACKEND_OPTION}"]
 deploy:
   helm:
     releases:
       - name: ${FRONTEND_REPOSITORY_NAME}
         chartPath: ${FRONTEND_HELM_FOLDER_PATH}/
         valuesFiles:
-          - ${FRONTEND_HELM_FOLDER_PATH}/${FRONTEND_RELEASE_NAME}-values.yaml
+          - ${FRONTEND_HELM_FOLDER_PATH}/${FRONTEND_RELEASE_NAME}.values.yaml
         setValues:
           image.repository: ${FRONTEND_REPOSITORY_NAME}
           image.tag: ${FRONTEND_REPOSITORY_TAG}
       - name: ${BACKEND_REPOSITORY_NAME}
         chartPath: ${BACKEND_HELM_FOLDER_PATH}/
         valuesFiles:
-          - ${BACKEND_HELM_FOLDER_PATH}/${BACKEND_RELEASE_NAME}-values.yaml
+          - ${BACKEND_HELM_FOLDER_PATH}/${BACKEND_RELEASE_NAME}.values.yaml
         setValues:
           image.repository: ${BACKEND_REPOSITORY_NAME}
           image.tag: ${BACKEND_REPOSITORY_TAG}
