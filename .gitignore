@@ -2,3 +2,4 @@
 /local/.env
 */postgres/init-db.sql
 values.local.yaml
+helm.err.log

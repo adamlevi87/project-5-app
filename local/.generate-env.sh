@@ -1,29 +1,28 @@
 #!/bin/bash
 
+set -euo
 # Load the base .env file
 set -a
 source .env.base
 set +a
 
-# Compose derived values
-
-SQS_QUEUE_URL="http://${LOCALSTACK_HOST}:${LOCALSTACK_PORT}/000000000000/${QUEUE_NAME}"
 
 # Argument validation
 if [ -z "$1" ]; then
-  echo "❌ Missing argument: please specify 'backend' or 'frontend' or 'nginx' or 'docker-compose'"
+  echo "❌ Missing argument: please specify '$BACKENDOPTION' or '$FRONTENDOPTION' or '$NGINXOPTION' or 'docker-compose'"
   exit 1
 fi
 
 
-# === Backend values ===
-if [ "$1" == "backend" ]; then
-  echo "🔧 Generating values.local.yaml for backend..."
-  BACKEND_HOST_ADDRESS="${BACKEND_HOST_ADDRESS}.local"
-  FRONTEND_HOST_ADDRESS="${FRONTEND_HOST_ADDRESS}.local"
-  SQS_QUEUE_URL="http://${LOCALSTACK_HOST_EXTERNAL}:${LOCALSTACK_PORT}/000000000000/${QUEUE_NAME}"
-  BACKEND_REPOSITORY_URL="${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${BACKEND_REPOSITORY_NAME}"
-  cat <<EOF > ./helm/base-app/values.local.yaml
+case "$1" in
+  "$BACKEND_OPTION")
+    # === Backend values ===
+    echo "🔧 Generating values.local.yaml for $BACKEND_OPTION..."
+    BACKEND_HOST_ADDRESS="${BACKEND_HOST_ADDRESS}.local"
+    FRONTEND_HOST_ADDRESS="${FRONTEND_HOST_ADDRESS}.local"
+    SQS_QUEUE_URL="http://${LOCALSTACK_HOST_EXTERNAL}:${LOCALSTACK_PORT}/000000000000/${QUEUE_NAME}"
+    BACKEND_REPOSITORY_URL="${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${BACKEND_REPOSITORY_NAME}"
+    cat <<EOF > "$BACKEND_HELM_FOLDER_PATH/values.local.yaml"
 image:
   repository: "${BACKEND_REPOSITORY_URL}"
   tag: "${BACKEND_REPOSITORY_TAG}"
@@ -61,17 +60,16 @@ envSecrets:
   
 EOF
 
-  echo "✅ Backend values.local.yaml generated."
-
-
-# === Frontend values ===
-elif [ "$1" == "frontend" ]; then
-  echo "🔧 Generating values.local.yaml for frontend..."
-  BACKEND_HOST_ADDRESS="${BACKEND_HOST_ADDRESS}.local"
-  FRONTEND_HOST_ADDRESS="${FRONTEND_HOST_ADDRESS}.local"
-  FRONTEND_REPOSITORY_URL="${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${FRONTEND_REPOSITORY_NAME}"
-  REACT_APP_BACKEND_URL="http://${BACKEND_HOST_ADDRESS}:${INGRESS_CONTROLLER_EXTERNAL_PORT_HTTP}"
-  cat <<EOF > ./helm/base-app/values.local.yaml
+    echo "✅ $BACKEND_OPTION values.local.yaml generated."
+    ;;
+  "$FRONTEND_OPTION")
+    # === Frontend values ===
+    echo "🔧 Generating values.local.yaml for $FRONTEND_OPTION..."
+    BACKEND_HOST_ADDRESS="${BACKEND_HOST_ADDRESS}.local"
+    FRONTEND_HOST_ADDRESS="${FRONTEND_HOST_ADDRESS}.local"
+    FRONTEND_REPOSITORY_URL="${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${FRONTEND_REPOSITORY_NAME}"
+    REACT_APP_BACKEND_URL="http://${BACKEND_HOST_ADDRESS}:${INGRESS_CONTROLLER_EXTERNAL_PORT_HTTP}"
+    cat <<EOF > "$FRONTEND_HELM_FOLDER_PATH/values.local.yaml"
 image:
   repository: "${FRONTEND_REPOSITORY_URL}"
   tag: "${FRONTEND_REPOSITORY_TAG}"
@@ -97,18 +95,12 @@ envSecrets:
   REACT_APP_BACKEND_URL: "$REACT_APP_BACKEND_URL"
 EOF
 
-  echo "✅ Frontend values.local.yaml generated."
-
-
-# === nginx values ===
-elif [ "$1" == "nginx" ]; then
-  echo "🔧 Generating values.local.yaml for nginx..."
-  # Add the ingress-nginx Helm repo if not already present
-  if ! helm repo list | grep -q "^${INGRESS_REPO_NAME}"; then
-    helm repo add "${INGRESS_REPO_NAME}" "${INGRESS_REPO_URL}"
-    helm repo update
-  fi
-  cat <<EOF > ./helm/infra/ingress-nginx/values.local.yaml
+    echo "✅ $FRONTEND_OPTION values.local.yaml generated."
+    ;;
+  "$NGINX_OPTION")
+    # === nginx values ===
+    echo "🔧 Generating values.local.yaml for $NGINX_OPTION..."
+    cat <<EOF > "$NGINX_HELM_FOLDER_PATH/values.local.yaml"
 controller:
   service:
     type: "${INGRESS_CONTROLLER_SERVICE_TYPE}"
@@ -121,14 +113,12 @@ controller:
     enabled: true
     default: true
 EOF
-  echo "✅ nginx-Infrastructure values.local.yaml generated."
-
-
-# === docker-compose values ===
-elif [ "$1" == "docker-compose" ]; then
-  echo "🔧 Generating .env for docker-compose..."
-
-  cat <<EOF > .env
+    echo "✅ $NGINX_OPTION-Infrastructure values.local.yaml generated."
+    ;;
+  "docker-compose")
+    # === docker-compose values ===
+    echo "🔧 Generating .env for docker-compose..."
+    cat <<EOF > .env
 # Composed variables
 # Dynamic Variables
 REACT_APP_BACKEND_URL="http://${BACKEND_HOST_ADDRESS}:${BACKEND_PORT}"
@@ -160,12 +150,10 @@ FRONTEND_HOST_ADDRESS="${FRONTEND_HOST_ADDRESS}"
 FRONTEND_PORT="${FRONTEND_PORT}"
 EOF
   
-  envsubst < postgres/init-db.template.sql > postgres/init-db.sql
-
-  echo "✅ docker-compose .env generated."
-  
-
-else
-  echo "❌ Unknown target: $1 (expected 'backend' or 'frontend')"
-  exit 1
-fi
+    envsubst < postgres/init-db.template.sql > postgres/init-db.sql
+    echo "✅ docker-compose .env generated."
+    ;;
+  *)
+    echo "❌ Unknown target: $1 (expected '$BACKEND_OPTION' or '$FRONTEND_OPTION' or '$NGINX_OPTION' or 'docker-compose')"
+    exit 1
+esac

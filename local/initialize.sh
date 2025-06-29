@@ -1,12 +1,19 @@
 #!/bin/bash
 
-set -e
+set -euo
+
+# Load the base .env file
+set -a
+source .env.base
+set +a
 
 MODE=$1
 ACTION=$2  # deploy (default) or uninstall
 
 if [[ -z "$MODE" ]]; then
-  echo "Usage: $0 <docker_only | hybrid> [uninstall]"
+  echo "Usage: $0 <docker_only | hybrid> optional:[uninstall]"
+  echo "Example: $0 docker_only "
+  echo "Usage: $0 hybrid uninstall"
   exit 1
 fi
 
@@ -36,18 +43,23 @@ deploy_hybrid() {
   docker compose --profile docker_and_kubernetes up --build --detach
 
   echo "[+] Generating and applying ingress controller config..."
-  ./.generate-env.sh nginx
-  helm upgrade --install ingress-controller ingress-nginx/ingress-nginx \
-    --namespace ingress-nginx \
+  ./.generate-env.sh $NGINX_OPTION
+  # Add the ingress-nginx Helm repo if not already present
+  if ! helm repo list | grep -q "^${INGRESS_REPO_NAME}"; then
+    helm repo add "${INGRESS_REPO_NAME}" "${INGRESS_REPO_URL}"
+    helm repo update
+  fi
+  helm upgrade --install $NGINX_RELEASE_NAME $NGINX_CHART_NAME/$INGRESS_REPO_NAME \
+    --namespace $NGINX_NAMESPACE \
     --create-namespace \
-    -f ./helm/infra/ingress-nginx/values.local.yaml
+    -f $NGINX_HELM_FOLDER_PATH/values.local.yaml
 
-  echo "[~] Waiting for ingress controller admission webhook service to become ready..."
   echo "[+] Generating and applying backend config..."
-  ./.generate-env.sh backend
+  ./.generate-env.sh $BACKEND_OPTION
   
+  echo "[~] Waiting for ingress controller admission webhook service to become ready..."
   for i in {1..20}; do
-    if helm upgrade --install backend ./helm/base-app/ -f ./helm/base-app/values.local.yaml 2> helm.err.log; then
+    if helm upgrade --install $BACKEND_RELEASE_NAME $BACKEND_HELM_FOLDER_PATH -f $BACKEND_HELM_FOLDER_PATH/values.local.yaml 2> helm.$BACKEND_RELEASE_NAME.err.log; then
       echo "[✓] Backend installed successfully."
       break
     fi
@@ -68,15 +80,15 @@ deploy_hybrid() {
   done
 
   echo "[+] Generating and applying frontend config..."
-  ./.generate-env.sh frontend
-  helm upgrade --install frontend ./helm/base-app/ -f ./helm/base-app/values.local.yaml
+  ./.generate-env.sh $FRONTEND_OPTION
+  helm upgrade --install $FRONTEND_RELEASE_NAME $FRONTEND_HELM_FOLDER_PATH -f $FRONTEND_HELM_FOLDER_PATH/values.local.yaml
 }
 
 uninstall_hybrid() {
   echo "[!] Uninstalling Helm releases..."
-  helm uninstall frontend || true
-  helm uninstall backend || true
-  helm uninstall ingress-controller -n ingress-nginx || true
+  helm uninstall $FRONTEND_RELEASE_NAME || true
+  helm uninstall $BACKEND_RELEASE_NAME || true
+  helm uninstall $NGINX_RELEASE_NAME -n $NGINX_NAMESPACE || true
 
   echo "[!] Stopping Docker Compose infra (docker_and_kubernetes)..."
   docker compose --profile docker_and_kubernetes down -v --remove-orphans
