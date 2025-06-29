@@ -2,5 +2,5 @@
 /local/.env
 */postgres/init-db.sql
 */helm/base-app/*.local.yaml
-helm.err.log
+helm.backend.err.log
 *skaffold.yaml
