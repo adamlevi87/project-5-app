@@ -1,5 +1,6 @@
 /local-testbed/.env
 /local/.env
 */postgres/init-db.sql
-values.local.yaml
+*/helm/base-app/*.local.yaml
 helm.err.log
+*skaffold.yaml

@@ -17,12 +17,12 @@ fi
 case "$1" in
   "$BACKEND_OPTION")
     # === Backend values ===
-    echo "🔧 Generating values.local.yaml for $BACKEND_OPTION..."
+    echo "🔧 Generating ${BACKEND_RELEASE_NAME}.local.yaml for $BACKEND_OPTION..."
     BACKEND_HOST_ADDRESS="${BACKEND_HOST_ADDRESS}.local"
     FRONTEND_HOST_ADDRESS="${FRONTEND_HOST_ADDRESS}.local"
     SQS_QUEUE_URL="http://${LOCALSTACK_HOST_EXTERNAL}:${LOCALSTACK_PORT}/000000000000/${QUEUE_NAME}"
     BACKEND_REPOSITORY_URL="${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${BACKEND_REPOSITORY_NAME}"
-    cat <<EOF > "$BACKEND_HELM_FOLDER_PATH/values.local.yaml"
+    cat <<EOF > "$BACKEND_HELM_FOLDER_PATH/${BACKEND_RELEASE_NAME}.local.yaml"
 image:
   repository: "${BACKEND_REPOSITORY_URL}"
   tag: "${BACKEND_REPOSITORY_TAG}"
@@ -60,16 +60,16 @@ envSecrets:
   
 EOF
 
-    echo "✅ $BACKEND_OPTION values.local.yaml generated."
+    echo "✅ ${BACKEND_RELEASE_NAME}.local.yaml generated."
     ;;
   "$FRONTEND_OPTION")
     # === Frontend values ===
-    echo "🔧 Generating values.local.yaml for $FRONTEND_OPTION..."
+    echo "🔧 Generating ${FRONTEND_RELEASE_NAME}.local.yaml for $FRONTEND_OPTION..."
     BACKEND_HOST_ADDRESS="${BACKEND_HOST_ADDRESS}.local"
     FRONTEND_HOST_ADDRESS="${FRONTEND_HOST_ADDRESS}.local"
     FRONTEND_REPOSITORY_URL="${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${FRONTEND_REPOSITORY_NAME}"
     REACT_APP_BACKEND_URL="http://${BACKEND_HOST_ADDRESS}:${INGRESS_CONTROLLER_EXTERNAL_PORT_HTTP}"
-    cat <<EOF > "$FRONTEND_HELM_FOLDER_PATH/values.local.yaml"
+    cat <<EOF > "$FRONTEND_HELM_FOLDER_PATH/${FRONTEND_RELEASE_NAME}.local.yaml"
 image:
   repository: "${FRONTEND_REPOSITORY_URL}"
   tag: "${FRONTEND_REPOSITORY_TAG}"
@@ -95,7 +95,7 @@ envSecrets:
   REACT_APP_BACKEND_URL: "$REACT_APP_BACKEND_URL"
 EOF
 
-    echo "✅ $FRONTEND_OPTION values.local.yaml generated."
+    echo "✅ ${FRONTEND_RELEASE_NAME}.local.yaml generated."
     ;;
   "$NGINX_OPTION")
     # === nginx values ===
@@ -150,7 +150,7 @@ FRONTEND_HOST_ADDRESS="${FRONTEND_HOST_ADDRESS}"
 FRONTEND_PORT="${FRONTEND_PORT}"
 EOF
   
-    envsubst < postgres/init-db.template.sql > postgres/init-db.sql
+    envsubst < ./docker/postgres/init-db.template.sql > ./docker/postgres/init-db.sql
     echo "✅ docker-compose .env generated."
     ;;
   *)

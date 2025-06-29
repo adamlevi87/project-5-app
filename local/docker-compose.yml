@@ -13,7 +13,7 @@ services:
     ports:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
-      - ./postgres/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+      - ./docker/postgres/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
       - pgdata:/var/lib/postgresql/data
 
 
@@ -27,7 +27,7 @@ services:
       - "${LOCALSTACK_PORT}:${LOCALSTACK_PORT}"
     volumes:
       - localstack:/var/lib/localstack
-      - ./localstack/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh
+      - ./docker/localstack/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh
     entrypoint: ["sh", "-c", "chmod +x /etc/localstack/init/ready.d/init-aws.sh && docker-entrypoint.sh"]
 
 
@@ -61,7 +61,7 @@ services:
   lambda-mock:
     profiles: ["docker_only","docker_and_kubernetes"]
     build:
-      context: ./lambda-mock
+      context: ./docker/lambda-mock
     depends_on:
       - s3-init
     environment:

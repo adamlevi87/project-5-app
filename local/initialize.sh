@@ -57,7 +57,7 @@ deploy_hybrid() {
   
   echo "[~] Waiting for ingress controller admission webhook service to become ready..."
   for i in {1..20}; do
-    if helm upgrade --install $BACKEND_RELEASE_NAME $BACKEND_HELM_FOLDER_PATH -f $BACKEND_HELM_FOLDER_PATH/values.local.yaml 2> helm.$BACKEND_RELEASE_NAME.err.log; then
+    if helm upgrade --install $BACKEND_RELEASE_NAME $BACKEND_HELM_FOLDER_PATH -f $BACKEND_HELM_FOLDER_PATH/$BACKEND_RELEASE_NAME.local.yaml 2> helm.$BACKEND_RELEASE_NAME.err.log; then
       echo "[✓] Backend installed successfully."
       break
     fi
@@ -79,7 +79,9 @@ deploy_hybrid() {
 
   echo "[+] Generating and applying frontend config..."
   ./.generate-env.sh $FRONTEND_OPTION
-  helm upgrade --install $FRONTEND_RELEASE_NAME $FRONTEND_HELM_FOLDER_PATH -f $FRONTEND_HELM_FOLDER_PATH/values.local.yaml
+  helm upgrade --install $FRONTEND_RELEASE_NAME $FRONTEND_HELM_FOLDER_PATH -f $FRONTEND_HELM_FOLDER_PATH/$FRONTEND_RELEASE_NAME.local.yaml
+
+  envsubst < skaffold.yaml.template > skaffold.yaml
 }
 
 uninstall_hybrid() {

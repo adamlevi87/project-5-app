@@ -1,0 +1,46 @@
+apiVersion: skaffold/v2beta29
+kind: Config
+metadata:
+  name: ${SKAFFOLD_PROJECT_NAME}
+build:
+  local:
+    push: true
+    useDockerCLI: true
+    tryImportMissing: true
+  artifacts:
+    - image: ${REPOSITORY_ADDRESS}/${FRONTEND_REPOSITORY_NAME}
+      context: ../app/frontend
+      docker:
+        dockerfile: Dockerfile
+    - image: ${REPOSITORY_ADDRESS}/${BACKEND_REPOSITORY_NAME}
+      context: ../app/backend
+      docker:
+        dockerfile: Dockerfile
+deploy:
+  helm:
+    releases:
+      - name: ${FRONTEND_REPOSITORY_NAME}
+        chartPath: ${FRONTEND_HELM_FOLDER_PATH}/
+        valuesFiles:
+          - ${FRONTEND_HELM_FOLDER_PATH}/${FRONTEND_RELEASE_NAME}-values.yaml
+        setValues:
+          image.repository: ${FRONTEND_REPOSITORY_NAME}
+          image.tag: ${FRONTEND_REPOSITORY_TAG}
+      - name: ${BACKEND_REPOSITORY_NAME}
+        chartPath: ${BACKEND_HELM_FOLDER_PATH}/
+        valuesFiles:
+          - ${BACKEND_HELM_FOLDER_PATH}/${BACKEND_RELEASE_NAME}-values.yaml
+        setValues:
+          image.repository: ${BACKEND_REPOSITORY_NAME}
+          image.tag: ${BACKEND_REPOSITORY_TAG}
+# portForward:
+#   - resourceType: service
+#     resourceName: backend
+#     namespace: default
+#     port: 80
+#     localPort: 8080
+#   - resourceType: service
+#     resourceName: frontend
+#     namespace: default
+#     port: 80
+#     localPort: 8081
