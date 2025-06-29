@@ -7,9 +7,8 @@ build:
     push: true
     useDockerCLI: true
     tryImportMissing: true
-  tagPolicy:
-    customTemplate:
-      template: "latest"
+  insecureRegistries:
+    - ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}
   artifacts:
     - image: ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${FRONTEND_REPOSITORY_NAME}
       context: ${FRONTEND_APP_FOLDER_PATH}
@@ -32,10 +31,16 @@ deploy:
         chartPath: ${FRONTEND_HELM_FOLDER_PATH}/
         valuesFiles:
           - ${FRONTEND_HELM_FOLDER_PATH}/${FRONTEND_RELEASE_NAME}.local.yaml
+        imageStrategy:
+          helm:
+            explicitRegistry: true 
       - name: ${BACKEND_REPOSITORY_NAME}
         chartPath: ${BACKEND_HELM_FOLDER_PATH}/
         valuesFiles:
           - ${BACKEND_HELM_FOLDER_PATH}/${BACKEND_RELEASE_NAME}.local.yaml
+        imageStrategy:
+          helm:
+            explicitRegistry: true
 # portForward:
 #   - resourceType: service
 #     resourceName: backend
