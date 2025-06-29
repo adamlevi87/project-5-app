@@ -59,12 +59,12 @@ deploy_hybrid() {
       break
     fi
 
-    if grep -q "failed calling webhook.*connect: connection refused" helm.err.log; then
+    if grep -q "failed calling webhook.*connect: connection refused" helm.$BACKEND_RELEASE_NAME.err.log; then
       echo "[...] Admission webhook not ready yet, retrying... ($i/20)"
       sleep 2
     else
       echo "[✗] Helm failed with a different error:"
-      cat helm.err.log
+      cat helm.$BACKEND_RELEASE_NAME.err.log
       exit 1
     fi
 
