@@ -4,7 +4,7 @@ metadata:
   name: ${SKAFFOLD_PROJECT_NAME}
 build:
   tagPolicy:
-    dateTime: {}
+    inputDigest: {}
   local:
     push: true
     useDockerCLI: true
