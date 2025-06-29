@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 # Load the base .env file
 set -a
 source .env.base
