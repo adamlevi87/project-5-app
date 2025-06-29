@@ -32,6 +32,7 @@ services:
     - sh
     - -c
     - |
+      mkdir -p /etc/localstack/init/ready.d
       cp /tmp/init-aws.sh /etc/localstack/init/ready.d/init-aws.sh
       chmod +x /etc/localstack/init/ready.d/init-aws.sh
       docker-entrypoint.sh
