@@ -3,6 +3,8 @@ kind: Config
 metadata:
   name: ${SKAFFOLD_PROJECT_NAME}
 build:
+  tagPolicy:
+    dateTime: {}
   local:
     push: true
     useDockerCLI: true
