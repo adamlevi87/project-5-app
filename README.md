@@ -17,10 +17,13 @@ app/
 
 local/
 ├── docker/       # Infrastructure containers (Postgres, LocalStack, etc.)
-├── helm/         # Shared Helm chart for frontend/backend
-├── initialize.sh # Unified setup script
-├── skaffold/     # Skaffold CI-like rebuild flow
-├── .env.base     # Shared variable definitions
+├── helm/
+│   ├── base-app/         # Shared Helm chart for frontend/backend apps
+│   └── infra/
+│       └── ingress-nginx/  # Helm chart for deploying the ingress controller
+├── initialize.sh  # Unified setup script
+├── skaffold/      # Skaffold CI-like rebuild flow
+├── .env.base      # Shared variable definitions
 ```
 
 ## 🛠️ Deployment Modes
@@ -74,12 +77,12 @@ These values are configurable via `.env.base`.
   - Triggers Helm `upgrade --install` for live redeployment
 
 - **Helm**:
-  - Shared chart for frontend/backend
-  - Values injected per app via `frontend.local.yaml` and `backend.local.yaml`
+  - `helm/base-app/`: Shared chart used by both frontend and backend (injected with per-app values files)
+  - `helm/infra/ingress-nginx/`: Installs the ingress controller to expose services
 
 - **Ingress (NGINX)**:
-  - Deployed by `initialize.sh`
-  - Handles `frontend.local`, `backend.local` routing via Minikube's IP
+  - Deployed by `initialize.sh` using Helm
+  - Handles `frontend.local` and `backend.local` routing via Minikube's IP
 
 ## 📦 Services Overview
 
