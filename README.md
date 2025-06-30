@@ -1,163 +1,119 @@
-# App Repository
+# 🚀 Project 5 – Full-Stack App with Local Dev Environment
 
-This repository contains the full application code for the DevOps project:
+This project provides a full-stack web application with a structured local development environment. It supports two deployment modes:
+**Docker Compose only** and a **hybrid Docker + Kubernetes setup** using Minikube:
 
 * Frontend (React)
 * Backend (Node.js with DB + SQS)
 * Helm charts for Kubernetes deployment
 * Local development environment using Docker Compose and Skaffold
 
-## 🥪 `local-testbed/`: Prototype & Validation Environment
+## 📁 Repository Structure
 
-Before transitioning to a clean local developer setup, we used `local-testbed/` as a sandbox to validate all key components of the system:
+```
+app/
+├── frontend/     # React frontend + Dockerfile
+├── backend/      # Node.js backend + Dockerfile
 
-* ✅ **Frontend & Backend containers** communicating correctly
-* ✅ Backend storing data in **PostgreSQL** and pushing to **SQS**
-* ✅ **Lambda mock** consuming from SQS and writing to **S3**
-* ✅ Everything orchestrated using `docker-compose`
-* ✅ Verified networking, AWS service mocking (via LocalStack), and end-to-end flow
-
-This testbed served as a scratchpad for experimentation, learning, and proving the design. As the project matured, we finalized the architecture and moved to a more structured dev environment under `local/`.
-
-> *The `local-testbed/` folder is preserved as a reference and documentation of how this system was gradually built and refined.*
-
-### ▶️ Usage Instructions for `local-testbed/`
-
-#### ✅ Prerequisites
-
-* Docker and Docker Compose installed (tested on CentOS 9 VM)
-* Node.js and npm for frontend/backend dev (optional)
-* No `.env` file is committed — it must be generated
-* ✨ **Recommended**: Install [`awslocal`](https://github.com/localstack/awscli-local) to simplify AWS commands with LocalStack
-
-#### 🔧 1. Generate `.env`
-
-```bash
-cd local-testbed
-./generate-env.sh
+local/
+├── docker/       # Infrastructure containers (Postgres, LocalStack, etc.)
+├── helm/         # Shared Helm chart for frontend/backend
+├── initialize.sh # Unified setup script
+├── skaffold/     # Skaffold CI-like rebuild flow
+├── .env.base     # Shared variable definitions
 ```
 
-This script:
+## 🛠️ Deployment Modes
 
-* Loads base variables from `.env.base`
-* Dynamically composes:
+### 1. Docker Only (Monolithic Local Setup)
 
-  * `REACT_APP_BACKEND_URL`
-  * `SQS_QUEUE_URL`
-  * `AWS_ENDPOINT`
-* Appends all values into `.env`, used by Docker Compose
-
-#### 🚀 2. Start the stack
+Runs everything (infra + apps) using Docker Compose.
 
 ```bash
-docker compose up --build
+./initialize.sh docker_only
 ```
 
-For a clean rebuild:
+### 2. Hybrid (Kubernetes + Docker Compose)
+
+- Infra (Postgres, LocalStack, lambda) via Docker Compose
+- Apps (frontend, backend) deployed via Kubernetes (Minikube)
+- Skaffold watches app folders and redeploys on changes
 
 ```bash
-docker compose down -v --remove-orphans
-docker compose build --no-cache
-docker compose up
+./initialize.sh hybrid
 ```
 
-#### 🌐 3. Access Points
-
-| Service     | URL                                                      |
-| ----------- | -------------------------------------------------------- |
-| Frontend    | [http://localhost](http://localhost)                     |
-| Backend API | [http://backend:3000](http://backend:3000)               |
-| Healthcheck | [http://backend:3000/health](http://backend:3000/health) |
-| LocalStack  | [http://localhost:4566](http://localhost:4566)           |
-
-#### 📀 Architecture Overview
-
-1. **Frontend** sends text input to the backend
-2. **Backend**:
-
-   * Saves it to PostgreSQL
-   * Publishes it to an SQS queue (via LocalStack)
-3. **Lambda-mock**:
-
-   * Listens on SQS
-   * Writes messages to an S3 bucket (mocked)
-4. **S3-init**: creates the bucket at startup using AWS CLI
-
-#### 💠 Notes
-
-* **Backend** uses `express.json()` and dynamic CORS config from `BACKEND_HOST`
-* **AWS SDK** credentials are passed in `.env` (`test` keys for LocalStack)
-* **Postgres** is initialized via `.sql` template + `init-db.sh` (uses `envsubst`)
-* The backend container must explicitly call `/usr/local/bin/docker-entrypoint.sh` due to a custom `entrypoint:` override
-
-#### ⚖️ Useful Commands
-
-**Show container logs:**
+💡 Uninstall with:
 
 ```bash
-docker compose logs
+./initialize.sh docker_only uninstall
+./initialize.sh hybrid uninstall
 ```
 
-**Query messages in the database:**
+## 🌐 Host Configuration
 
-```bash
-docker compose exec postgres psql -U myapp -d myapp_db -c "SELECT * FROM messages;"
+Ensure your **Windows 11 host** maps service hostnames to the correct VMs:
+
+```
+# Docker Compose services
+192.168.241.128 backend
+192.168.241.128 frontend
+
+# Kubernetes ingress services
+192.168.59.105 backend.local
+192.168.59.105 frontend.local
 ```
 
-**Verify SQS queue created:**
+These values are configurable via `.env.base`.
 
-```bash
-aws --endpoint-url=http://localhost:4566 sqs list-queues
-```
+## 🧰 Tooling Overview
 
-**Read messages in the queue (if Lambda hasn’t processed them):**
+- **Skaffold** (used only in hybrid mode):
+  - Watches for changes in `app/frontend` and `app/backend`
+  - Builds & pushes images to the internal Docker registry (`192.168.241.128:5000`)
+  - Triggers Helm `upgrade --install` for live redeployment
 
-```bash
-aws --endpoint-url=http://localhost:4566 sqs receive-message \
-  --queue-url http://sqs.us-east-1.localhost.localstack.cloud:4566/000000000000/my-queue \
-  --max-number-of-messages 10
-```
+- **Helm**:
+  - Shared chart for frontend/backend
+  - Values injected per app via `frontend.local.yaml` and `backend.local.yaml`
 
-**List files written by lambda to S3:**
+- **Ingress (NGINX)**:
+  - Deployed by `initialize.sh`
+  - Handles `frontend.local`, `backend.local` routing via Minikube's IP
 
-```bash
-awslocal s3 ls s3://myapp-bucket/messages/
-```
+## 📦 Services Overview
 
-**Print a specific file from S3 (by name):**
+| Component     | Stack                     | Purpose                            |
+|---------------|---------------------------|------------------------------------|
+| Frontend      | React + NGINX (K8s)       | UI interface                       |
+| Backend       | Node.js + Express (K8s)   | Accepts input, writes to DB & SQS  |
+| Postgres      | Docker Compose            | Stores submitted messages          |
+| LocalStack    | Docker Compose            | Mocks AWS S3 + SQS                 |
+| Lambda-Mock   | Docker Compose            | Simulates Lambda reading from SQS  |
+| S3 Init       | Docker Compose            | Bootstrap S3 bucket on startup     |
 
-```bash
-awslocal s3 cp s3://myapp-bucket/messages/<filename>.json -
-```
+## 🔁 Skaffold CI-Like Flow
 
-**Print the first message in S3 bucket:**
+Only applies in `hybrid` mode:
 
-```bash
-awslocal s3 cp s3://myapp-bucket/messages/$(awslocal s3 ls s3://myapp-bucket/messages/ | awk '{print $4}' | head -n1) -
-```
+1. Developer edits frontend/backend code
+2. Skaffold:
+   - Rebuilds the image
+   - Pushes to local registry
+   - Triggers `helm upgrade`
+3. Kubernetes picks up the new version (using image digest or `latest` tag)
 
-#### 🪑 Cleanup
+## ✨ Advanced Notes
 
-To reset all services and data:
+- All shared variables are managed in `.env.base`
+- Helm values files are auto-generated via `generate-env.sh`
+- Helm chart uses `image.repository`, `image.tag`, `image.pullPolicy`
+- Skaffold `imageStrategy` is configured to use `helm.explicitRegistry`
+- Pushes to insecure registry: `192.168.241.128:5000`
 
-```bash
-docker compose down -v
-```
+## ✅ Setup Prerequisites
 
-## 📦 Next Steps: `local/` Becomes the Developer Environment
-
-We're now evolving the local setup into a clean, reproducible dev environment that:
-
-* Builds images for frontend/backend
-* Pushes them to a local Docker registry hosted on the CentOS VM
-* Supports Minikube Kubernetes deployments
-* Reflects the production-like build/deploy flow
-
----
-
-## 📁 Folder Summary
-
-| Folder           | Purpose                                            |
-| ---------------- | -------------------------------------------------- |
-| `local-testbed/` | Historical prototype & validation environment      |
-| `local/`         | Structured local dev setup w/ registry integration |
+- Docker + Docker Compose (on CentOS VM)
+- Minikube (VirtualBox-based VM)
+- Helm, kubectl, Skaffold installed on CentOS VM
+- Windows host with `/etc/hosts` or `C:\Windows\System32\drivers\etc\hosts` entries pointing to Minikube and Docker IPs
