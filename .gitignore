@@ -3,7 +3,7 @@
 */docker/postgres/init-db.sql
 
 helm.backend.err.log
-*skaffold.yaml
+
 *docker-compose.yml
 
 *values.local.yaml
@@ -12,3 +12,4 @@ frontend.local.yaml
 backend.local.yaml
 
 skaffold.log
+skaffold.yaml
