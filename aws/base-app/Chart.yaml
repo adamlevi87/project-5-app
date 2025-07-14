@@ -1,0 +1,7 @@
+apiVersion: v2
+name: common
+description: A common Helm chart that fits the backend and frontend services
+type: application
+version: 0.1.0
+appVersion: "1.0"
+icon: https://via.placeholder.com/150

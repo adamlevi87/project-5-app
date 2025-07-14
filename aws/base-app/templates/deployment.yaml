@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "common.fullname" . }}
+  labels:
+    {{ include "common.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount | default 1 }}
+  selector:
+    matchLabels:
+      {{ include "common.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{ include "common.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ include "common.fullname" . }}
+          image: "{{ required "image.repository is required" .Values.image.repository }}:{{ required "image.tag is required"  .Values.image.tag }}"
+          imagePullPolicy: {{ required "image.pullPolicy is required" .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ required "containerPort is required" .Values.containerPort }}
+          env:
+          {{- range $key, $value := .Values.envSecrets }}
+            - name: {{ $key }}
+              value: "{{ required (printf "Missing required value for envSecrets.%s" $key) $value }}"
+          {{- end }}
+
+          envFrom:
+            - secretRef:
+                name: {{ include "common.fullname" . }}-env

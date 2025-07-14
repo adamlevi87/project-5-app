@@ -1,0 +1,48 @@
+# aws/values/frontend.aws.yaml
+# Frontend deployment values for AWS EKS
+
+image:
+  repository: "593793036161.dkr.ecr.us-east-1.amazonaws.com/project-5"
+  tag: "frontend-latest"
+  pullPolicy: Always
+
+service:
+  type: "ClusterIP"
+  port: 80
+
+containerPort: 80
+
+ingress:
+  enabled: true
+  host: "project-5.projects-devops.cfd"
+  ingressControllerClassResourceName: "alb"
+  ingressPath: "/"
+  annotations:
+    alb.ingress.kubernetes.io/scheme: "internet-facing"
+    alb.ingress.kubernetes.io/target-type: "ip"
+    alb.ingress.kubernetes.io/target-group-arn: "arn:aws:elasticloadbalancing:us-east-1:593793036161:targetgroup/project-5-dev-frontend/acc2dffec2d98e0b"
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+
+replicaCount: 2
+
+# HPA Configuration
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 70
+  # targetMemoryUtilizationPercentage: 80  # Optional
+
+# Resource requests/limits for HPA to work
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+envSecrets:
+  # Frontend may need backend URL for API calls
+  REACT_APP_BACKEND_URL: "https://project-5.projects-devops.cfd"
