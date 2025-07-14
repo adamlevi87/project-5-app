@@ -8,4 +8,7 @@ helm.backend.err.log
 
 *values.local.yaml
 
+frontend.local.yaml
+backend.local.yaml
 
+/skaffold.log
