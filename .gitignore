@@ -11,4 +11,4 @@ helm.backend.err.log
 frontend.local.yaml
 backend.local.yaml
 
-/skaffold.log
+skaffold.log
