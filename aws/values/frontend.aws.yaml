@@ -22,6 +22,7 @@ ingress:
     alb.ingress.kubernetes.io/target-type: "ip"
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/target-group-arn: "arn:aws:elasticloadbalancing:us-east-1:593793036161:targetgroup/project-5-dev-frontend/acc2dffec2d98e0b"
     alb.ingress.kubernetes.io/load-balancer-name: "project-5-dev-app-alb"
 
 replicaCount: 2
