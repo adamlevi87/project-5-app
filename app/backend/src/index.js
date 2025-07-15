@@ -48,6 +48,23 @@ const sqs = new AWS.SQS({
 // POST /submit
 const TABLE_NAME = process.env.POSTGRES_TABLE || 'messages';
 
+const initDatabase = async () => {
+  try {
+    console.log(`Initializing database schema for table: ${TABLE_NAME}`);
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
+        id SERIAL PRIMARY KEY,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log(`Database schema initialized successfully for table: ${TABLE_NAME}`);
+  } catch (error) {
+    console.error('Failed to initialize database:', error);
+    process.exit(1);
+  }
+};
+
 // SQL Injection protection, value can only be text
 if (!/^[a-zA-Z0-9_]+$/.test(TABLE_NAME)) {
   throw new Error('Invalid table name');
@@ -85,5 +102,10 @@ app.use((req, res) => {
 });
 
 // Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Backend listening on port ${PORT}`));
+initDatabase().then(() => {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`Backend listening on port ${PORT}`));
+}).catch(error => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
+});
