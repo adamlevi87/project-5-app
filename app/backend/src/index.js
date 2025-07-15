@@ -29,13 +29,20 @@ if (process.env.FRONTEND_HOST_ADDRESS) {
 app.use(cors({ origin: origins }));
 
 // PostgreSQL connection
-const db = new Pool({
+const config  = new Pool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 });
+
+const ssl =
+  process.env.NODE_ENV === 'production'
+    ? { rejectUnauthorized: false } // enables SSL without cert validation (OK for dev/test)
+    : false;                        // disables SSL in local dev if not needed
+
+const db = new Pool({ ...config, ssl });
 
 // AWS SQS setup
 const sqs = new AWS.SQS({

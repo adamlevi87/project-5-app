@@ -57,10 +57,13 @@ envSecrets:
   DB_USER: "myapp"
   # DB_PASSWORD will be injected from AWS Secrets Manager
   POSTGRES_TABLE: "messages"
-  
+  # Controls backend communication with the DB - on AWS ssl is required
+  NODE_ENV: "production"
+
   # SQS Configuration
   SQS_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/593793036161/project-5-dev-app-messages"
   
   # CORS Configuration
   BACKEND_HOST_ADDRESS: "project-5.projects-devops.cfd"
   FRONTEND_HOST_ADDRESS: "project-5.projects-devops.cfd"
+  
