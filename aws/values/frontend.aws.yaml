@@ -24,8 +24,8 @@ ingress:
     alb.ingress.kubernetes.io/target-type: "ip"
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: "443"
-    alb.ingress.kubernetes.io/target-group-arn: "arn:aws:elasticloadbalancing:us-east-1:593793036161:targetgroup/project-5-dev-frontend/acc2dffec2d98e0b"
-    alb.ingress.kubernetes.io/load-balancer-name: "project-5-dev-app-alb"
+    # Removed hardcoded target group ARN - let ALB controller create it
+    alb.ingress.kubernetes.io/load-balancer-name: "project-5-dev-frontend-alb"
 
 replicaCount: 2
 
@@ -47,5 +47,5 @@ resources:
     memory: 512Mi
 
 envSecrets:
-  # Frontend may need backend URL for API calls
+  # Frontend connects to backend via the ALB
   REACT_APP_BACKEND_URL: "https://project-5.projects-devops.cfd"

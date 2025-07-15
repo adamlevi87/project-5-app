@@ -23,11 +23,25 @@ helm upgrade --install frontend-aws ./base-app \
   --namespace default \
   --create-namespace
 
+# Deploy backend
+echo "⚙️ Deploying backend..."
+helm upgrade --install backend-aws ./base-app \
+  -f ./values/backend.aws.yaml \
+  --namespace default \
+  --create-namespace
+
 # Check deployment status
 echo "✅ Checking deployment status..."
 kubectl get pods -l app=frontend-aws
+kubectl get pods -l app=backend-aws
 kubectl get ingress
-kubectl get targetgroupbindings
+kubectl get services
 
 echo "🎉 Deployment complete!"
 echo "📱 Application should be available at: https://project-5.projects-devops.cfd"
+echo ""
+echo "🔧 Useful commands:"
+echo "  kubectl get pods"
+echo "  kubectl logs -f deployment/frontend-aws"
+echo "  kubectl logs -f deployment/backend-aws"
+echo "  kubectl describe ingress"

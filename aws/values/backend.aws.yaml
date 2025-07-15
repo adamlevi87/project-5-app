@@ -1,0 +1,66 @@
+# aws/values/backend.aws.yaml
+# Backend deployment values for AWS EKS
+
+image:
+  repository: "593793036161.dkr.ecr.us-east-1.amazonaws.com/project-5"
+  tag: "backend-latest"
+  pullPolicy: Always
+
+service:
+  type: "ClusterIP"
+  port: 80
+  targetPort: 3000
+  name: "http"
+
+containerPort: 3000
+
+ingress:
+  enabled: true
+  host: "project-5.projects-devops.cfd"
+  ingressControllerClassResourceName: "alb"
+  ingressPath: "/submit"
+  annotations:
+    alb.ingress.kubernetes.io/scheme: "internet-facing"
+    alb.ingress.kubernetes.io/target-type: "ip"
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/load-balancer-name: "project-5-dev-backend-alb"
+
+replicaCount: 2
+
+# HPA Configuration
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 70
+
+# Resource requests/limits for HPA to work
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+envSecrets:
+  # AWS Configuration
+  AWS_REGION: "us-east-1"
+  AWS_ACCESS_KEY_ID: "dummy"  # Will use IRSA instead
+  AWS_SECRET_ACCESS_KEY: "dummy"  # Will use IRSA instead
+  
+  # Database Configuration
+  DB_HOST: "project-5-dev-db.cbky8om2asia.us-east-1.rds.amazonaws.com"
+  DB_PORT: "5432"
+  DB_NAME: "myapp_db"
+  DB_USER: "myapp"
+  # DB_PASSWORD will be injected from AWS Secrets Manager
+  POSTGRES_TABLE: "messages"
+  
+  # SQS Configuration
+  SQS_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/593793036161/project-5-dev-app-messages"
+  
+  # CORS Configuration
+  BACKEND_HOST_ADDRESS: "project-5.projects-devops.cfd"
+  FRONTEND_HOST_ADDRESS: "project-5.projects-devops.cfd"
