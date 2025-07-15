@@ -25,7 +25,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: "443"
     # Removed hardcoded target group ARN - let ALB controller create it
-    alb.ingress.kubernetes.io/load-balancer-name: "project-5-dev-frontend-alb"
+    alb.ingress.kubernetes.io/group.name: "project-5-dev-shared"
 
 replicaCount: 2
 
