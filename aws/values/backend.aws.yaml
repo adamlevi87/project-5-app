@@ -51,8 +51,6 @@ resources:
 envSecrets:
   # AWS Configuration
   AWS_REGION: "us-east-1"
-  AWS_ACCESS_KEY_ID: "dummy"  # Will use IRSA instead
-  AWS_SECRET_ACCESS_KEY: "dummy"  # Will use IRSA instead
   
   # Database Configuration
   DB_HOST: "project-5-dev-db.cbky8om2asia.us-east-1.rds.amazonaws.com"

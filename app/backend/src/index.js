@@ -37,11 +37,11 @@ const config  = {
   database: process.env.DB_NAME,
 };
 
-const ssl =
-  process.env.NODE_ENV === 'production'
-    ? { rejectUnauthorized: false } // enables SSL without cert validation (OK for dev/test)
-    : false;                        // disables SSL in local dev if not needed
+const isProd = process.env.NODE_ENV === 'production';
 
+const ssl = isProd
+  ? { rejectUnauthorized: false }  // enables SSL (but skips cert verification — common in dev)
+  : false;                         // disables SSL entirely for local
 
 console.log("Connecting to DB at:", config.host, "with user:", config.user);
 const db = new Pool({ ...config, ssl });
@@ -50,10 +50,17 @@ const db = new Pool({ ...config, ssl });
 // AWS SQS setup
 const sqs = new AWS.SQS({
   region: process.env.AWS_REGION,
-  endpoint: process.env.SQS_QUEUE_URL.startsWith("http") ? process.env.SQS_QUEUE_URL.split("/000000000000")[0] : undefined,
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  endpoint: !isProd
+    ? process.env.SQS_QUEUE_URL.split("/000000000000")[0]
+    : undefined,
+  ...(isProd
+    ? {}
+    : {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      }),
 });
+
 
 // POST /submit
 const TABLE_NAME = process.env.POSTGRES_TABLE || 'messages';
