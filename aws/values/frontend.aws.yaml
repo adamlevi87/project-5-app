@@ -9,6 +9,8 @@ image:
 service:
   type: "ClusterIP"
   port: 80
+  targetPort: 80
+  name: "http"
 
 containerPort: 80
 
