@@ -2,8 +2,8 @@
 # Backend deployment values for AWS EKS
 
 image:
-  repository: "593793036161.dkr.ecr.us-east-1.amazonaws.com/project-5"
-  tag: "backend-latest"
+  repository: "593793036161.dkr.ecr.us-east-1.amazonaws.com/project-5-dev-backend"
+  tag: ""
   pullPolicy: Always
 
 service:
