@@ -12,6 +12,10 @@ service:
   targetPort: 80
   name: "http"
 
+serviceAccount:
+  create: false
+  name: backend-sa
+
 containerPort: 80
 
 ingress:

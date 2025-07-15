@@ -12,6 +12,10 @@ service:
   targetPort: 3000
   name: "http"
 
+serviceAccount:
+  create: false
+  name: backend-sa
+
 containerPort: 3000
 
 ingress:
