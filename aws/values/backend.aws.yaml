@@ -55,6 +55,7 @@ envSecrets:
   DB_PORT: "5432"
   DB_NAME: "myapp_db"
   DB_USER: "myapp"
+  DB_PASSWORD: "5yb0$7Hv&c|,y2MU"
   # DB_PASSWORD will be injected from AWS Secrets Manager
   POSTGRES_TABLE: "messages"
   # Controls backend communication with the DB - on AWS ssl is required
@@ -66,4 +67,5 @@ envSecrets:
   # CORS Configuration
   BACKEND_HOST_ADDRESS: "project-5.projects-devops.cfd"
   FRONTEND_HOST_ADDRESS: "project-5.projects-devops.cfd"
+ 
   
