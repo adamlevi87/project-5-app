@@ -13,7 +13,7 @@ ECR_REPO="${PROJECT_TAG}-${ENV}-${APP_NAME}"
 ECR_URI="593793036161.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
 
 echo "🛠  Building image for $APP_NAME..."
-docker build -t "${ECR_URI}:${COMMIT_SHA}" "./app/${APP_NAME}"
+docker build -t "${ECR_URI}:${COMMIT_SHA}" "../app/${APP_NAME}"
 
 echo "🔐 Logging into ECR..."
 aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$ECR_URI"
@@ -35,12 +35,15 @@ echo "  Digest: ${DIGEST}"
 
 # Optional: deploy via Helm using digest
 echo "🚀 Deploying $APP_NAME via Helm..."
-helm upgrade "$APP_NAME" ./helm/base-app \
+helm upgrade "$APP_NAME-aws" ./base-app \
   --install \
+  -f ./values/${APP_NAME}.aws.yaml \
   --namespace default \
+  --create-namespace
   --set image.repository="${ECR_URI}" \
   --set image.digest="${DIGEST}" \
   --set image.tag=""
+
 
 # Optional: save metadata to file
 echo "image=${ECR_URI}" > "./${APP_NAME}-deploy-info.env"

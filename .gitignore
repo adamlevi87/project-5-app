@@ -13,3 +13,5 @@ backend.local.yaml
 
 skaffold.log
 skaffold.yaml
+
+*deploy-info.env
