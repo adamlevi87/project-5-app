@@ -39,7 +39,7 @@ helm upgrade "$APP_NAME-aws" ./base-app \
   --install \
   -f ./values/${APP_NAME}.aws.yaml \
   --namespace default \
-  --create-namespace
+  --create-namespace \
   --set image.repository="${ECR_URI}" \
   --set image.digest="${DIGEST}" \
   --set image.tag=""
