@@ -35,7 +35,10 @@ deploy:
           - ${FRONTEND_HELM_FOLDER_PATH}/${FRONTEND_RELEASE_NAME}.local.yaml
         imageStrategy:
           helm:
-            explicitRegistry: true 
+            explicitRegistry: true
+        requires:
+          - image: ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${FRONTEND_REPOSITORY_NAME}
+
       - name: ${BACKEND_REPOSITORY_NAME}
         chartPath: ${BACKEND_HELM_FOLDER_PATH}/
         valuesFiles:
@@ -43,6 +46,8 @@ deploy:
         imageStrategy:
           helm:
             explicitRegistry: true
+        requires:
+          - image: ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${BACKEND_REPOSITORY_NAME}
 # portForward:
 #   - resourceType: service
 #     resourceName: backend
