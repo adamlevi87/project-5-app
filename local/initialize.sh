@@ -39,6 +39,10 @@ deploy_hybrid() {
 
   echo "[+] Generating and applying ingress controller config..."
   ./.generate-env.sh $NGINX_OPTION
+
+  # changing kubectl context to local minikube
+  kubectl config use-context dev-local
+
   # Add the ingress-nginx Helm repo if not already present
   if ! helm repo list | grep -q "^${INGRESS_REPO_NAME}"; then
     helm repo add "${INGRESS_REPO_NAME}" "${INGRESS_REPO_URL}"
