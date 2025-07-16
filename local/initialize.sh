@@ -56,9 +56,9 @@ deploy_hybrid() {
   build_and_push_image "$BACKEND_REPOSITORY_NAME" "$BACKEND_APP_FOLDER_PATH"
 
   # debug
-  echo "${IMAGE_URI}"
-  echo "${COMMIT_SHA}"
-  echo "${DIGEST}"
+  echo "image uri outside the function: ${IMAGE_URI}"
+  echo "commit sha outside the function: ${COMMIT_SHA}"
+  echo "digest outside the function: ${DIGEST}"
 
   echo "[~] Waiting for ingress controller admission webhook service to become ready..."
   for i in {1..20}; do
@@ -87,6 +87,11 @@ deploy_hybrid() {
   echo "Calling build_and_push_image function for Frontend..."
   build_and_push_image "$FRONTEND_REPOSITORY_NAME" "$FRONTEND_APP_FOLDER_PATH"
   
+  # debug
+  echo "image uri outside the function: ${IMAGE_URI}"
+  echo "commit sha outside the function: ${COMMIT_SHA}"
+  echo "digest outside the function: ${DIGEST}"
+
   helm upgrade --install $FRONTEND_RELEASE_NAME $FRONTEND_HELM_FOLDER_PATH -f $FRONTEND_HELM_FOLDER_PATH/$FRONTEND_RELEASE_NAME.local.yaml --set image.repository="${IMAGE_URI}" --set image.digest="${DIGEST}" --set image.tag=""
 
   envsubst < skaffold.yaml.template > skaffold.yaml
@@ -129,6 +134,9 @@ build_and_push_image() {
       exit 1
     }
 
+    echo "image uri inside the function: ${IMAGE_URI}"
+    echo "commit sha inside the function: ${COMMIT_SHA}"
+    echo "digest inside the function: ${DIGEST}"
     # Export so the caller can access $DIGEST and $IMAGE_URI if needed
     export IMAGE_URI
     export COMMIT_SHA
