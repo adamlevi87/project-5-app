@@ -26,6 +26,7 @@ case "$1" in
 image:
   repository: "${BACKEND_REPOSITORY_URL}"
   tag: "${BACKEND_REPOSITORY_TAG}"
+  digest: ""
   pullPolicy: IfNotPresent
 
 service:
@@ -87,6 +88,7 @@ EOF
 image:
   repository: "${FRONTEND_REPOSITORY_URL}"
   tag: "${FRONTEND_REPOSITORY_TAG}"
+  digest: ""
   pullPolicy: IfNotPresent
 
 service:

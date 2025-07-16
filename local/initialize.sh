@@ -43,6 +43,7 @@ deploy_hybrid() {
     helm repo add "${INGRESS_REPO_NAME}" "${INGRESS_REPO_URL}"
     helm repo update
   fi
+  
   helm upgrade --install $NGINX_RELEASE_NAME $NGINX_CHART_NAME/$INGRESS_REPO_NAME \
     --namespace $NGINX_NAMESPACE \
     --create-namespace \
@@ -56,7 +57,7 @@ deploy_hybrid() {
 
   echo "[~] Waiting for ingress controller admission webhook service to become ready..."
   for i in {1..20}; do
-    if helm upgrade --install $BACKEND_RELEASE_NAME $BACKEND_HELM_FOLDER_PATH -f $BACKEND_HELM_FOLDER_PATH/$BACKEND_RELEASE_NAME.local.yaml 2> helm.$BACKEND_RELEASE_NAME.err.log; then
+    if helm upgrade --install $BACKEND_RELEASE_NAME $BACKEND_HELM_FOLDER_PATH -f $BACKEND_HELM_FOLDER_PATH/$BACKEND_RELEASE_NAME.local.yaml --set image.repository="${IMAGE_URI}" --set image.digest="${DIGEST}" --set image.tag="" 2> helm.$BACKEND_RELEASE_NAME.err.log; then
       echo "[✓] Backend installed successfully."
       break
     fi
@@ -80,8 +81,8 @@ deploy_hybrid() {
   ./.generate-env.sh $FRONTEND_OPTION
   echo "Calling build_and_push_image function for Frontend..."
   build_and_push_image "$FRONTEND_REPOSITORY_NAME" "$FRONTEND_APP_FOLDER_PATH"
-
-  helm upgrade --install $FRONTEND_RELEASE_NAME $FRONTEND_HELM_FOLDER_PATH -f $FRONTEND_HELM_FOLDER_PATH/$FRONTEND_RELEASE_NAME.local.yaml
+  
+  helm upgrade --install $FRONTEND_RELEASE_NAME $FRONTEND_HELM_FOLDER_PATH -f $FRONTEND_HELM_FOLDER_PATH/$FRONTEND_RELEASE_NAME.local.yaml --set image.repository="${IMAGE_URI}" --set image.digest="${DIGEST}" --set image.tag=""
 
   envsubst < skaffold.yaml.template > skaffold.yaml
 }
