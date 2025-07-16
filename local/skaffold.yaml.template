@@ -36,6 +36,9 @@ deploy:
         imageStrategy:
           helm:
             explicitRegistry: true
+        upgrade:
+          enable: true
+          force: true
         requires:
           - image: ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${FRONTEND_REPOSITORY_NAME}
 
@@ -46,6 +49,9 @@ deploy:
         imageStrategy:
           helm:
             explicitRegistry: true
+        upgrade:
+          enable: true
+          force: true
         requires:
           - image: ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${BACKEND_REPOSITORY_NAME}
 ## portForward:
