@@ -125,6 +125,8 @@ EOF
     envsubst < ./docker-compose.yml.template > ./docker-compose.yml
     echo "✅ docker-compose created using all the required variables."
     
+    # the creation of this table also happens on the application start up
+    # (application code in javascript)
     echo "🔧 Injecting variables into init-db.sql"
     envsubst < "${POSTGRES_FOLDER_PATH}/init-db.template.sql" > "${POSTGRES_FOLDER_PATH}/init-db.sql"
     echo "✅ Postgres-init-db.sql generated."
