@@ -43,7 +43,7 @@ deploy_hybrid() {
     helm repo add "${INGRESS_REPO_NAME}" "${INGRESS_REPO_URL}"
     helm repo update
   fi
-  
+
   helm upgrade --install $NGINX_RELEASE_NAME $NGINX_CHART_NAME/$INGRESS_REPO_NAME \
     --namespace $NGINX_NAMESPACE \
     --create-namespace \
@@ -54,6 +54,11 @@ deploy_hybrid() {
 
   echo "Calling build_and_push_image function for Backend..."
   build_and_push_image "$BACKEND_REPOSITORY_NAME" "$BACKEND_APP_FOLDER_PATH"
+
+  # debug
+  echo "${IMAGE_URI}"
+  echo "${COMMIT_SHA}"
+  echo "${DIGEST}"
 
   echo "[~] Waiting for ingress controller admission webhook service to become ready..."
   for i in {1..20}; do
