@@ -14,12 +14,19 @@ spec:
       labels:
         {{ include "common.labels" . | nindent 8 }}
     spec:
+      {{- if .Values.serviceAccount.name }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      {{- end }}
       containers:
         - name: {{ include "common.fullname" . }}
-          image: "{{ required "image.repository is required" .Values.image.repository }}:{{ required "image.tag is required"  .Values.image.tag }}"
+          image: "{{ required "image.repository is required" .Values.image.repository }}{{ if .Values.image.digest }}@{{ .Values.image.digest }}{{ else }}:{{ required "image.tag is required when digest is not set" .Values.image.tag }}{{ end }}"
           imagePullPolicy: {{ required "image.pullPolicy is required" .Values.image.pullPolicy }}
           ports:
             - containerPort: {{ required "containerPort is required" .Values.containerPort }}
+          {{- if .Values.resources }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
           env:
           {{- range $key, $value := .Values.envSecrets }}
             - name: {{ $key }}

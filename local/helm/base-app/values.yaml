@@ -1,3 +1,5 @@
+# template value file
+
 image:
   repository: ""        # Should be overridden by env-specific file
   tag: ""               # Optional: could default to "latest"
@@ -7,6 +9,10 @@ service:
   type: null            # Must be overridden
   port: null            # Must be overridden
 
+serviceAccount:
+  create: false
+  name: ""
+
 containerPort: null     # Must be overridden
 
 ingress:
@@ -14,3 +20,22 @@ ingress:
   host: ""              # Must be overridden
   ingressControllerClassResourceName: "" # Must be overridden
   annotations: {}       # Must be overridden
+
+replicaCount: null      # Must be overridden
+
+# HPA Configuration
+autoscaling:
+  enabled: null         # Must be overridden
+  minReplicas: null     # Must be overridden
+  maxReplicas: null     # Must be overridden
+  targetCPUUtilizationPercentage: null # Must be overridden
+  # targetMemoryUtilizationPercentage: 80  # Optional
+
+# Resource requests/limits for HPA to work
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
