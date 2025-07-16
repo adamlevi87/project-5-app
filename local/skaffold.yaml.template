@@ -48,7 +48,7 @@ deploy:
             explicitRegistry: true
         requires:
           - image: ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${BACKEND_REPOSITORY_NAME}
-# portForward:
+## portForward:
 #   - resourceType: service
 #     resourceName: backend
 #     namespace: default
