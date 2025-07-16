@@ -230,8 +230,9 @@ awslocal s3 cp s3://myapp-bucket/messages/<filename>.json -
 **Print the first message in S3 bucket:**
 
 ```bash
-awslocal s3 cp s3://myapp-bucket/messages/$(awslocal \ 
-  s3 ls s3://myapp-bucket/messages/ | awk '{print $4}' | head -n1) -
+awslocal s3 cp s3://myapp-bucket/messages/$(\
+  awslocal s3 ls s3://myapp-bucket/messages/ | awk '{print $4}' | head -n1) -
+
 ```
 
 
