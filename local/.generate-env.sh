@@ -42,7 +42,21 @@ ingress:
   annotations:
     "${BACKEND_REWRITE_TARGET}": "${BACKEND_REWRITE_VALUE}"
 
-replicaCount: "${BACKEND_REPLICA_COUNT}"
+replicaCount: "${BACKEND_REPLICA_COUNT_MIN}"
+
+autoscaling:
+  enabled: "${BACKEND_HPA_ENABLED}"
+  minReplicas: "${BACKEND_REPLICA_COUNT_MIN}"
+  maxReplicas: "${BACKEND_REPLICA_COUNT_MAX}"
+  targetCPUUtilizationPercentage: "${BACKEND_HPA_CPU_SCALE}"
+
+resources:
+  requests:
+    cpu: "${BACKEND_REQUEST_CPU}"
+    memory: "${BACKEND_REQUEST_MEMORY}"
+  limits:
+    cpu: "${BACKEND_LIMIT_CPU}"
+    memory: "${BACKEND_LIMIT_MEMORY}"
 
 envSecrets:
   AWS_REGION: "${AWS_REGION}"
@@ -89,7 +103,21 @@ ingress:
   annotations:
     "${FRONTEND_REWRITE_TARGET}": "${FRONTEND_REWRITE_VALUE}"
 
-replicaCount: "${FRONTEND_REPLICA_COUNT}"
+replicaCount: "${FRONTEND_REPLICA_COUNT_MIN}"
+
+autoscaling:
+  enabled: "${FRONTEND_HPA_ENABLED}"
+  minReplicas: "${FRONTEND_REPLICA_COUNT_MIN}"
+  maxReplicas: "${FRONTEND_REPLICA_COUNT_MAX}"
+  targetCPUUtilizationPercentage: "${FRONTEND_HPA_CPU_SCALE}"
+
+resources:
+  requests:
+    cpu: "${FRONTEND_REQUEST_CPU}"
+    memory: "${FRONTEND_REQUEST_MEMORY}"
+  limits:
+    cpu: "${FRONTEND_LIMIT_CPU}"
+    memory: "${FRONTEND_LIMIT_MEMORY}"
 
 envSecrets:
   REACT_APP_BACKEND_URL: "$REACT_APP_BACKEND_URL"
