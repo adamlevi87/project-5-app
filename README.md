@@ -203,7 +203,8 @@ docker compose logs
 **Query messages in the database:**
 
 ```bash
-docker compose exec postgres psql -U myapp -d myapp_db -c "SELECT * FROM messages;"
+docker compose exec postgres psql -U myapp \
+  -d myapp_db -c "SELECT * FROM messages;"
 ```
 
 **Read messages in the queue (if Lambda hasn’t processed them):**
