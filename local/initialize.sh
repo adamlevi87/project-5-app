@@ -18,11 +18,6 @@ fi
 # Default action is deploy
 ACTION=${ACTION:-deploy}
 
-cd "$(dirname "$0")"
-
-echo "[+] Generating docker-compose.yml"
-  ./.generate-env.sh docker-compose
-
 deploy_docker_only() {
   echo "[+] Starting all services using Docker Compose with profile 'docker_only'..."
   docker compose --profile docker_only up --build --detach
@@ -55,7 +50,10 @@ deploy_hybrid() {
 
   echo "[+] Generating and applying backend config..."
   ./.generate-env.sh $BACKEND_OPTION
-  
+
+  echo "Calling build_and_push_image function for Backend..."
+  build_and_push_image "$BACKEND_REPOSITORY_NAME" "$BACKEND_APP_FOLDER_PATH"
+
   echo "[~] Waiting for ingress controller admission webhook service to become ready..."
   for i in {1..20}; do
     if helm upgrade --install $BACKEND_RELEASE_NAME $BACKEND_HELM_FOLDER_PATH -f $BACKEND_HELM_FOLDER_PATH/$BACKEND_RELEASE_NAME.local.yaml 2> helm.$BACKEND_RELEASE_NAME.err.log; then
@@ -80,6 +78,9 @@ deploy_hybrid() {
 
   echo "[+] Generating and applying frontend config..."
   ./.generate-env.sh $FRONTEND_OPTION
+  echo "Calling build_and_push_image function for Frontend..."
+  build_and_push_image "$FRONTEND_REPOSITORY_NAME" "$FRONTEND_APP_FOLDER_PATH"
+
   helm upgrade --install $FRONTEND_RELEASE_NAME $FRONTEND_HELM_FOLDER_PATH -f $FRONTEND_HELM_FOLDER_PATH/$FRONTEND_RELEASE_NAME.local.yaml
 
   envsubst < skaffold.yaml.template > skaffold.yaml
@@ -94,6 +95,44 @@ uninstall_hybrid() {
   echo "[!] Stopping Docker Compose infra (docker_and_kubernetes)..."
   docker compose --profile docker_and_kubernetes down -v --remove-orphans
 }
+
+build_and_push_image() {
+    local APP_NAME=$1
+    local APP_PATH=$2
+
+    local IMAGE_URI="${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${APP_NAME}"
+    local COMMIT_SHA
+    COMMIT_SHA=$(git rev-parse --short HEAD)
+
+    echo "🛠  Building image for ${APP_NAME}..."
+    docker build -t "${IMAGE_URI}:${COMMIT_SHA}" "${APP_PATH}" || {
+      echo "❌ Build failed for ${APP_NAME}"
+      exit 1
+    }
+
+    echo "📤 Pushing image..."
+    docker push "${IMAGE_URI}:${COMMIT_SHA}" || {
+      echo "❌ Push failed for ${APP_NAME}"
+      exit 1
+    }
+
+    echo "🔍 Getting image digest..."
+    local DIGEST
+    DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "${IMAGE_URI}:${COMMIT_SHA}" | cut -d@ -f2) || {
+      echo "❌ Failed to get digest for ${APP_NAME}"
+      exit 1
+    }
+
+    # Export so the caller can access $DIGEST and $IMAGE_URI if needed
+    export IMAGE_URI
+    export COMMIT_SHA
+    export DIGEST
+  }
+
+cd "$(dirname "$0")"
+
+echo "[+] Generating docker-compose.yml"
+  ./.generate-env.sh docker-compose
 
 case "$MODE" in
   docker_only)

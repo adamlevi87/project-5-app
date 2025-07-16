@@ -2,6 +2,7 @@
 
 image:
   repository: ""        # Should be overridden by env-specific file
+  digest: ""            # Should be overridden by an automation
   tag: ""               # Optional: could default to "latest"
   pullPolicy: IfNotPresent
 
