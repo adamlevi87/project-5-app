@@ -119,20 +119,20 @@ build_and_push_image() {
     COMMIT_SHA=$(git rev-parse --short HEAD)
 
     >&2 echo "🛠  Building image for ${APP_NAME}..."
-    docker build -t "${IMAGE_URI}:${COMMIT_SHA}" "${APP_PATH}" || {
+    docker build -t "${IMAGE_URI}:${COMMIT_SHA}" "${APP_PATH}" >&2 || {
       echo "❌ Build failed for ${APP_NAME}"
       exit 1
     }
 
     >&2 echo "📤 Pushing image..."
-    docker push "${IMAGE_URI}:${COMMIT_SHA}" || {
+    docker push "${IMAGE_URI}:${COMMIT_SHA}" >&2 || {
       echo "❌ Push failed for ${APP_NAME}"
       exit 1
     }
 
     >&2 echo "🔍 Getting image digest..."
     local DIGEST
-    DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "${IMAGE_URI}:${COMMIT_SHA}" | cut -d@ -f2) || {
+    DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "${IMAGE_URI}:${COMMIT_SHA}" | cut -d@ -f2) >&2 || {
       echo "❌ Failed to get digest for ${APP_NAME}"
       exit 1
     }
