@@ -85,7 +85,7 @@ Runs everything (infra + apps) using Docker Compose.
 ./initialize.sh hybrid uninstall
 ```
 
-## 🌐 Host Configuration
+## 🌐 Host Configuration & Browsing
 
 To enable proper service resolution during local development, this project uses custom hostnames mapped to the IPs of your local virtual machines.
 
@@ -104,7 +104,16 @@ You must add the following entries to your local hosts file:
 - The **base hostnames** (`backend`, `frontend`) are configurable via the `.env.base` file in the `local/` folder.
 - The **ingress hostnames** (`backend.local`, `frontend.local`) are automatically derived by appending `.local` to the base hostnames.
 - The **IP addresses** must reflect the actual IPs of your infrastructure VMs and should be manually assigned and updated in `.env.base`.
-
+- Accessing & browsing to the frontend is done using those host file entries:
+  - docker_only mode:
+        http://frontend/
+      backend is accessible on:
+        backend:3000
+  - hybrid mode:
+        http://frontend.local:30080/
+        https://frontend.local:30443/
+      backend is accessible on:
+        backend.local:30080/submit
 
 ## 🧰 Tooling Overview
 
