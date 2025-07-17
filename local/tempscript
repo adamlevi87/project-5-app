@@ -2,12 +2,9 @@
 
 # Load the base .env file
 set -a
-source .env.base
+source ./env.base.generate/.env.base
 set +a
 
-envsubst < skaffold.yaml.template > skaffold.yaml
-
-envsubst < skaffold-frontend.yaml.template > skaffold-frontend.yaml
-envsubst < skaffold-backend.yaml.template > skaffold-backend.yaml
-
+envsubst < ./skaffold/templates/skaffold-frontend.yaml.template > ./skaffold/skaffold-frontend.yaml
+  envsubst < ./skaffold/templates/skaffold-backend.yaml.template > ./skaffold/skaffold-backend.yaml
 

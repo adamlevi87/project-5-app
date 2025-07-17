@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # Skaffold management script
-FRONTEND_CONFIG="skaffold-frontend.yaml"
-BACKEND_CONFIG="skaffold-backend.yaml"
-FRONTEND_LOG="frontend-skaffold.log"
-BACKEND_LOG="backend-skaffold.log"
-PID_FILE="skaffold.pids"
+FRONTEND_CONFIG="./skaffold/skaffold-frontend.yaml"
+BACKEND_CONFIG="./skaffold/skaffold-backend.yaml"
+FRONTEND_LOG="./skaffold/logs/frontend-skaffold.log"
+BACKEND_LOG="./skaffold/logs/backend-skaffold.log"
+PID_FILE="./skaffold/skaffold.pids"
 
 start_skaffold() {
     echo "Starting Skaffold processes..."
