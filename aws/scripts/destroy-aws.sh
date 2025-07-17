@@ -127,24 +127,24 @@ check_rds_deletion_protection() {
     fi
 }
 
-# Function to run terraform destroy
-run_terraform_destroy() {
-    echo -e "${YELLOW}🚀 Running Terraform destroy...${NC}"
+# # Function to run terraform destroy
+# run_terraform_destroy() {
+#     echo -e "${YELLOW}🚀 Running Terraform destroy...${NC}"
     
-    # Check if we're in the right directory
-    if [ ! -f "environments/dev/terraform.tfvars" ]; then
-        echo -e "${RED}❌ Error: Please run this script from the project root directory${NC}"
-        exit 1
-    fi
+#     # Check if we're in the right directory
+#     if [ ! -f "environments/dev/terraform.tfvars" ]; then
+#         echo -e "${RED}❌ Error: Please run this script from the project root directory${NC}"
+#         exit 1
+#     fi
     
-    cd main/
+#     cd main/
     
-    # Run terraform destroy
-    echo -e "${YELLOW}💥 Running: terraform destroy -var-file=\"../environments/dev/terraform.tfvars\"${NC}"
-    terraform destroy -var-file="../environments/dev/terraform.tfvars" -auto-approve
+#     # Run terraform destroy
+#     echo -e "${YELLOW}💥 Running: terraform destroy -var-file=\"../environments/dev/terraform.tfvars\"${NC}"
+#     terraform destroy -var-file="../environments/dev/terraform.tfvars" -auto-approve
     
-    echo -e "${GREEN}✅ Terraform destroy completed successfully!${NC}"
-}
+#     echo -e "${GREEN}✅ Terraform destroy completed successfully!${NC}"
+# }
 
 # Main execution
 main() {
@@ -165,24 +165,24 @@ main() {
     echo -e "${YELLOW}🚀 Ready to run Terraform destroy!${NC}"
     echo ""
     
-    # Ask user if they want to proceed with terraform destroy
-    read -p "Do you want to run 'terraform destroy' now? (y/N): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        run_terraform_destroy
-    else
-        echo -e "${YELLOW}📝 You can now manually run:${NC}"
-        echo -e "   cd main/"
-        echo -e "   terraform destroy -var-file=\"../environments/dev/terraform.tfvars\""
-    fi
+    # # Ask user if they want to proceed with terraform destroy
+    # read -p "Do you want to run 'terraform destroy' now? (y/N): " -n 1 -r
+    # echo
+    # if [[ $REPLY =~ ^[Yy]$ ]]; then
+    #     run_terraform_destroy
+    # else
+    #     echo -e "${YELLOW}📝 You can now manually run:${NC}"
+    #     echo -e "   cd main/"
+    #     echo -e "   terraform destroy -var-file=\"../environments/dev/terraform.tfvars\""
+    # fi
 }
 
-# Check if we're running from the correct directory
-if [ ! -f "environments/dev/terraform.tfvars" ]; then
-    echo -e "${RED}❌ Error: Please run this script from the project root directory${NC}"
-    echo -e "${YELLOW}Expected to find: environments/dev/terraform.tfvars${NC}"
-    exit 1
-fi
+# # Check if we're running from the correct directory
+# if [ ! -f "environments/dev/terraform.tfvars" ]; then
+#     echo -e "${RED}❌ Error: Please run this script from the project root directory${NC}"
+#     echo -e "${YELLOW}Expected to find: environments/dev/terraform.tfvars${NC}"
+#     exit 1
+# fi
 
 # Run main function
 main "$@"
