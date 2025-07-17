@@ -1,4 +1,36 @@
-node_modules
-npm-debug.log
-build
-.env
+# Vim/Vi editor files
+*.swp
+*.swo
+*.swpx
+.*.swp
+.*.swo
+.*.swpx
+*~
+
+# Other editor temporary files
+.#*
+#*#
+
+# Node.js
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# Build artifacts
+build/
+dist/
+coverage/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment files
+.env*
