@@ -23,9 +23,9 @@ deploy:
   helm:
     releases:
       - name: ${BACKEND_REPOSITORY_NAME}
-        chartPath: ${BACKEND_HELM_FOLDER_PATH}/
+        chartPath: ${BACKEND_HELM_TEMPLATE_FOLDER_PATH}/
         valuesFiles:
-          - ${BACKEND_HELM_FOLDER_PATH}/${BACKEND_RELEASE_NAME}.local.yaml
+          - ${BACKEND_HELM_VALUES_FOLDER_PATH}/${BACKEND_RELEASE_NAME}.local.yaml
         imageStrategy:
           helm:
             explicitRegistry: true

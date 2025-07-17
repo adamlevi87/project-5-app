@@ -63,7 +63,7 @@ deploy_hybrid() {
 
   echo "[~] Waiting for ingress controller admission webhook service to become ready..."
   for i in {1..20}; do
-    if helm upgrade --install $BACKEND_RELEASE_NAME $BACKEND_HELM_FOLDER_PATH -f $BACKEND_HELM_FOLDER_PATH/$BACKEND_RELEASE_NAME.local.yaml --set image.repository="${IMAGE_URI}" --set image.digest="${DIGEST}" --set image.tag="" 2> helm.$BACKEND_RELEASE_NAME.err.log; then
+    if helm upgrade --install $BACKEND_RELEASE_NAME $BACKEND_HELM_TEMPLATE_FOLDER_PATH -f $BACKEND_HELM_VALUES_FOLDER_PATH/$BACKEND_RELEASE_NAME.local.yaml --set image.repository="${IMAGE_URI}" --set image.digest="${DIGEST}" --set image.tag="" 2> helm.$BACKEND_RELEASE_NAME.err.log; then
       echo "[✓] Backend installed successfully."
       break
     fi
@@ -95,7 +95,7 @@ deploy_hybrid() {
   echo "  SHA:    $COMMIT_SHA"
   echo "  Digest: $DIGEST"
 
-  helm upgrade --install $FRONTEND_RELEASE_NAME $FRONTEND_HELM_FOLDER_PATH -f $FRONTEND_HELM_FOLDER_PATH/$FRONTEND_RELEASE_NAME.local.yaml --set image.repository="${IMAGE_URI}" --set image.digest="${DIGEST}" --set image.tag=""
+  helm upgrade --install $FRONTEND_RELEASE_NAME $FRONTEND_HELM_TEMPLATE_FOLDER_PATH -f $FRONTEND_HELM_VALUES_FOLDER_PATH/$FRONTEND_RELEASE_NAME.local.yaml --set image.repository="${IMAGE_URI}" --set image.digest="${DIGEST}" --set image.tag=""
 
   envsubst < ./skaffold/templates/skaffold-frontend.yaml.template > ./skaffold/skaffold-frontend.yaml
   envsubst < ./skaffold/templates/skaffold-backend.yaml.template > ./skaffold/skaffold-backend.yaml
