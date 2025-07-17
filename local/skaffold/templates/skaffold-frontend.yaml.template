@@ -13,7 +13,7 @@ build:
     - ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}
   artifacts:
     - image: ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${FRONTEND_REPOSITORY_NAME}
-      context: ${FRONTEND_APP_FOLDER_PATH}
+      context: ../${FRONTEND_APP_FOLDER_PATH}
       docker:
         dockerfile: Dockerfile
       hooks:
