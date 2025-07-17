@@ -1,0 +1,31 @@
+apiVersion: skaffold/v2beta29
+kind: Config
+metadata:
+  name: ${BACKEND_RELEASE_NAME}
+build:
+  tagPolicy:
+    inputDigest: {}
+  local:
+    push: true
+    useDockerCLI: true
+    tryImportMissing: true
+  insecureRegistries:
+    - ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}
+  artifacts:
+    - image: ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${BACKEND_REPOSITORY_NAME}
+      context: ${BACKEND_APP_FOLDER_PATH}
+      docker:
+        dockerfile: Dockerfile
+      hooks:
+        before:
+          - command: ["sh", "-c", "./.generate-env.sh ${BACKEND_OPTION}"]
+deploy:
+  helm:
+    releases:
+      - name: ${BACKEND_REPOSITORY_NAME}
+        chartPath: ${BACKEND_HELM_FOLDER_PATH}/
+        valuesFiles:
+          - ${BACKEND_HELM_FOLDER_PATH}/${BACKEND_RELEASE_NAME}.local.yaml
+        imageStrategy:
+          helm:
+            explicitRegistry: true

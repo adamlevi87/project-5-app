@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Load the base .env file
+set -a
+source .env.base
+set +a
+
+envsubst < skaffold.yaml.template > skaffold.yaml
+
+envsubst < skaffold-frontend.yaml.template > skaffold-frontend.yaml
+envsubst < skaffold-backend.yaml.template > skaffold-backend.yaml.template
+
+

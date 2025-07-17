@@ -1,0 +1,31 @@
+apiVersion: skaffold/v2beta29
+kind: Config
+metadata:
+  name: ${FRONTEND_RELEASE_NAME}
+build:
+  tagPolicy:
+    inputDigest: {}
+  local:
+    push: true
+    useDockerCLI: true
+    tryImportMissing: true
+  insecureRegistries:
+    - ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}
+  artifacts:
+    - image: ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${FRONTEND_REPOSITORY_NAME}
+      context: ${FRONTEND_APP_FOLDER_PATH}
+      docker:
+        dockerfile: Dockerfile
+      hooks:
+        before:
+          - command: ["sh", "-c", "./.generate-env.sh ${FRONTEND_OPTION}"]
+deploy:
+  helm:
+    releases:
+      - name: ${FRONTEND_REPOSITORY_NAME}
+        chartPath: ${FRONTEND_HELM_FOLDER_PATH}/
+        valuesFiles:
+          - ${FRONTEND_HELM_FOLDER_PATH}/${FRONTEND_RELEASE_NAME}.local.yaml
+        imageStrategy:
+          helm:
+            explicitRegistry: true
