@@ -35,8 +35,8 @@ autoscaling:
 # Resource requests/limits for HPA to work
 resources:
   requests:
-    cpu: 100m
-    memory: 128Mi
+    cpu: null           # Must be overridden
+    memory: null        # Must be overridden
   limits:
-    cpu: 500m
-    memory: 512Mi
+    cpu: null           # Must be overridden
+    memory: null        # Must be overridden
