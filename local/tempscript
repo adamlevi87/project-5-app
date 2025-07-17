@@ -8,6 +8,6 @@ set +a
 envsubst < skaffold.yaml.template > skaffold.yaml
 
 envsubst < skaffold-frontend.yaml.template > skaffold-frontend.yaml
-envsubst < skaffold-backend.yaml.template > skaffold-backend.yaml.template
+envsubst < skaffold-backend.yaml.template > skaffold-backend.yaml
 
 
