@@ -66,7 +66,111 @@ cleanup_kubernetes_ingress() {
     fi
 }
 
-# Function to wait for AWS Load Balancer Controller cleanup
+# Function to clean up Route53 DNS records created by ExternalDNS
+cleanup_external_dns_records() {
+    echo -e "${YELLOW}🌐 Cleaning up Route53 DNS records created by ExternalDNS...${NC}"
+    
+    # Domain from your terraform config
+    DOMAIN_NAME="projects-devops.cfd"
+    SUBDOMAIN_NAME="project-5"
+    FULL_DOMAIN="${SUBDOMAIN_NAME}.${DOMAIN_NAME}"
+    
+    # Get the hosted zone ID
+    ZONE_ID=$(aws route53 list-hosted-zones-by-name \
+        --dns-name "$DOMAIN_NAME" \
+        --region "$AWS_REGION" \
+        --query "HostedZones[0].Id" \
+        --output text 2>/dev/null | sed 's|/hostedzone/||')
+    
+    if [ -z "$ZONE_ID" ] || [ "$ZONE_ID" = "None" ]; then
+        echo -e "${YELLOW}⚠️  No hosted zone found for domain: $DOMAIN_NAME${NC}"
+        return
+    fi
+    
+    echo -e "${YELLOW}📋 Found hosted zone: $ZONE_ID for domain: $DOMAIN_NAME${NC}"
+    
+    # Get all DNS records for our subdomain
+    echo -e "${YELLOW}🔍 Looking for DNS records for: $FULL_DOMAIN${NC}"
+    
+    # Get A records created by ExternalDNS (they usually have TXT records with heritage=external-dns)
+    RECORDS=$(aws route53 list-resource-record-sets \
+        --hosted-zone-id "$ZONE_ID" \
+        --region "$AWS_REGION" \
+        --query "ResourceRecordSets[?Name=='${FULL_DOMAIN}.' && Type=='A']" \
+        --output json)
+    
+    if [ "$RECORDS" = "[]" ]; then
+        echo -e "${GREEN}✅ No A records found for $FULL_DOMAIN${NC}"
+    else
+        echo -e "${YELLOW}🗑️  Found A records for $FULL_DOMAIN, deleting...${NC}"
+        
+        # Parse the records and delete them
+        echo "$RECORDS" | jq -r '.[] | @base64' | while read -r record; do
+            RECORD_JSON=$(echo "$record" | base64 -d)
+            RECORD_TYPE=$(echo "$RECORD_JSON" | jq -r '.Type')
+            RECORD_NAME=$(echo "$RECORD_JSON" | jq -r '.Name')
+            
+            # Create change batch for deletion
+            CHANGE_BATCH=$(cat <<EOF
+{
+    "Changes": [
+        {
+            "Action": "DELETE",
+            "ResourceRecordSet": $RECORD_JSON
+        }
+    ]
+}
+EOF
+)
+            
+            echo -e "${YELLOW}🗑️  Deleting $RECORD_TYPE record: $RECORD_NAME${NC}"
+            aws route53 change-resource-record-sets \
+                --hosted-zone-id "$ZONE_ID" \
+                --change-batch "$CHANGE_BATCH" \
+                --region "$AWS_REGION" > /dev/null || true
+        done
+    fi
+    
+    # Also clean up any TXT records created by ExternalDNS for ownership
+    TXT_RECORDS=$(aws route53 list-resource-record-sets \
+        --hosted-zone-id "$ZONE_ID" \
+        --region "$AWS_REGION" \
+        --query "ResourceRecordSets[?Name=='${FULL_DOMAIN}.' && Type=='TXT']" \
+        --output json)
+    
+    if [ "$TXT_RECORDS" != "[]" ]; then
+        echo -e "${YELLOW}🗑️  Found TXT records for $FULL_DOMAIN, checking for ExternalDNS records...${NC}"
+        
+        echo "$TXT_RECORDS" | jq -r '.[] | @base64' | while read -r record; do
+            RECORD_JSON=$(echo "$record" | base64 -d)
+            RECORD_VALUE=$(echo "$RECORD_JSON" | jq -r '.ResourceRecords[0].Value')
+            
+            # Check if this TXT record contains ExternalDNS heritage
+            if echo "$RECORD_VALUE" | grep -q "heritage=external-dns"; then
+                echo -e "${YELLOW}🗑️  Deleting ExternalDNS TXT record${NC}"
+                
+                CHANGE_BATCH=$(cat <<EOF
+{
+    "Changes": [
+        {
+            "Action": "DELETE",
+            "ResourceRecordSet": $RECORD_JSON
+        }
+    ]
+}
+EOF
+)
+                
+                aws route53 change-resource-record-sets \
+                    --hosted-zone-id "$ZONE_ID" \
+                    --change-batch "$CHANGE_BATCH" \
+                    --region "$AWS_REGION" > /dev/null || true
+            fi
+        done
+    fi
+    
+    echo -e "${GREEN}✅ Route53 DNS records cleanup completed${NC}"
+}
 wait_for_aws_cleanup() {
     echo -e "${YELLOW}⏳ Waiting for AWS Load Balancer Controller to clean up AWS resources...${NC}"
     
@@ -130,19 +234,19 @@ check_rds_deletion_protection() {
 # # Function to run terraform destroy
 # run_terraform_destroy() {
 #     echo -e "${YELLOW}🚀 Running Terraform destroy...${NC}"
-    
+#     
 #     # Check if we're in the right directory
 #     if [ ! -f "environments/dev/terraform.tfvars" ]; then
 #         echo -e "${RED}❌ Error: Please run this script from the project root directory${NC}"
 #         exit 1
 #     fi
-    
+#     
 #     cd main/
-    
+#     
 #     # Run terraform destroy
 #     echo -e "${YELLOW}💥 Running: terraform destroy -var-file=\"../environments/dev/terraform.tfvars\"${NC}"
 #     terraform destroy -var-file="../environments/dev/terraform.tfvars" -auto-approve
-    
+#     
 #     echo -e "${GREEN}✅ Terraform destroy completed successfully!${NC}"
 # }
 
@@ -153,6 +257,7 @@ main() {
     check_aws_cli
     cleanup_kubernetes_ingress
     wait_for_aws_cleanup
+    cleanup_external_dns_records
     check_rds_deletion_protection
     
     echo -e "${GREEN}🎉 Pre-destroy cleanup completed successfully!${NC}"
@@ -160,21 +265,16 @@ main() {
     echo -e "   • Deleted Kubernetes ingress resources"
     echo -e "   • Deleted LoadBalancer services"
     echo -e "   • Waited for AWS Load Balancer Controller to clean up ALBs/TGs/SGs"
+    echo -e "   • Cleaned up Route53 DNS records created by ExternalDNS"
     echo -e "   • Checked/disabled RDS deletion protection"
     echo ""
-    echo -e "${YELLOW}🚀 Ready to run Terraform destroy!${NC}"
-    echo ""
-    
-    # # Ask user if they want to proceed with terraform destroy
-    # read -p "Do you want to run 'terraform destroy' now? (y/N): " -n 1 -r
-    # echo
-    # if [[ $REPLY =~ ^[Yy]$ ]]; then
-    #     run_terraform_destroy
-    # else
-    #     echo -e "${YELLOW}📝 You can now manually run:${NC}"
-    #     echo -e "   cd main/"
-    #     echo -e "   terraform destroy -var-file=\"../environments/dev/terraform.tfvars\""
-    # fi
+    echo -e "${GREEN}✅ Ready for Terraform destroy!${NC}"
+    echo -e "${YELLOW}📝 Next steps:${NC}"
+    echo -e "   1. Go to your Terraform repo"
+    echo -e "   2. Run: cd main/"
+    echo -e "   3. Run: terraform destroy -var-file=\"../environments/dev/terraform.tfvars\""
+    echo -e "   OR use your existing script:"
+    echo -e "   4. Run: ./scripts/plan_and_destroy.sh dev destroy filter single normal"
 }
 
 # # Check if we're running from the correct directory
