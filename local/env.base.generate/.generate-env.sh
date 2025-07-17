@@ -3,7 +3,7 @@
 set -e
 # Load the base .env file
 set -a
-source ./.env.base
+source ./env.base.generate/.env.base
 set +a
 
 
