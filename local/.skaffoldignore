@@ -1,6 +1,27 @@
+
+# Node.js
 node_modules/
-.git/
-*.log
-.env
+npm-debug.log*
+package-lock.json
+
+# Build artifacts
 build/
 dist/
+coverage/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+
+# Git
+.git/
+
+# Environment files
+.env*
