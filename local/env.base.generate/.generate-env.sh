@@ -158,7 +158,7 @@ EOF
     # the creation of this table also happens on the application start up
     # (application code in javascript)
     echo "🔧 Injecting variables into init-db.sql"
-    envsubst < "${POSTGRES_FOLDER_PATH}/init-db.template.sql" > "${POSTGRES_FOLDER_PATH}/init-db.sql"
+    envsubst < "./docker-compose/${POSTGRES_FOLDER_PATH}/init-db.template.sql" > "./docker-compose/${POSTGRES_FOLDER_PATH}/init-db.sql"
     echo "✅ Postgres-init-db.sql generated."
 
     ;;
