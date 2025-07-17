@@ -152,7 +152,7 @@ EOF
     export AWS_ENDPOINT="http://${DOCKER_COMPOSE_LOCALSTACK_SERVICE_NAME}:${LOCALSTACK_PORT}"
 
     echo "🔧 Injecting variables into docker-compose.yml"
-    envsubst < ./docker-compose/docker-compose.yml.template > ./docker-compose/docker-compose.yml
+    envsubst < ./docker-compose/template/docker-compose.yml.template > ./docker-compose/docker-compose.yml
     echo "✅ docker-compose created using all the required variables."
     
     # the creation of this table also happens on the application start up
