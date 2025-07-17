@@ -1,7 +1,7 @@
-apiVersion: skaffold/v4beta13
+apiVersion: skaffold/v2beta29
 kind: Config
 metadata:
-  name: ${SKAFFOLD_PROJECT_NAME}
+  name: ${FRONTEND_RELEASE_NAME}
 build:
   tagPolicy:
     inputDigest: {}
@@ -19,13 +19,6 @@ build:
       hooks:
         before:
           - command: ["sh", "-c", "./.generate-env.sh ${FRONTEND_OPTION}"]
-    - image: ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${BACKEND_REPOSITORY_NAME}
-      context: ${BACKEND_APP_FOLDER_PATH}
-      docker:
-        dockerfile: Dockerfile
-      hooks:
-        before:
-          - command: ["sh", "-c", "./.generate-env.sh ${BACKEND_OPTION}"]
 deploy:
   helm:
     releases:
@@ -36,12 +29,33 @@ deploy:
         imageStrategy:
           helm:
             explicitRegistry: true
-        upgrade:
-          enable: true
-          force: true
-        requires:
-          - image: ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${FRONTEND_REPOSITORY_NAME}
 
+---
+
+apiVersion: skaffold/v2beta29
+kind: Config
+metadata:
+  name: ${BACKEND_RELEASE_NAME}
+build:
+  tagPolicy:
+    inputDigest: {}
+  local:
+    push: true
+    useDockerCLI: true
+    tryImportMissing: true
+  insecureRegistries:
+    - ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}
+  artifacts:
+    - image: ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${BACKEND_REPOSITORY_NAME}
+      context: ${BACKEND_APP_FOLDER_PATH}
+      docker:
+        dockerfile: Dockerfile
+      hooks:
+        before:
+          - command: ["sh", "-c", "./.generate-env.sh ${BACKEND_OPTION}"]
+deploy:
+  helm:
+    releases:
       - name: ${BACKEND_REPOSITORY_NAME}
         chartPath: ${BACKEND_HELM_FOLDER_PATH}/
         valuesFiles:
@@ -49,19 +63,3 @@ deploy:
         imageStrategy:
           helm:
             explicitRegistry: true
-        upgrade:
-          enable: true
-          force: true
-        requires:
-          - image: ${REPOSITORY_ADDRESS}:${REPOSITORY_PORT}/${BACKEND_REPOSITORY_NAME}
-## portForward:
-#   - resourceType: service
-#     resourceName: backend
-#     namespace: default
-#     port: 80
-#     localPort: 8080
-#   - resourceType: service
-#     resourceName: frontend
-#     namespace: default
-#     port: 80
-#     localPort: 8081
