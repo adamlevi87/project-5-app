@@ -1,4 +1,5 @@
 #!/bin/bash
+# script should be ran from local/
 
 set -e
 # Load the base .env file

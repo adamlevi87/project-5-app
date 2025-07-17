@@ -1,4 +1,5 @@
 #!/bin/bash
+# script should be ran from local/
 
 # Skaffold management script
 FRONTEND_CONFIG="./skaffold/skaffold-frontend.yaml"

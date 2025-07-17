@@ -1,4 +1,5 @@
 #!/bin/bash
+# script should be ran from aws/
 
 set -euo pipefail
 
@@ -35,7 +36,7 @@ echo "  Digest: ${DIGEST}"
 
 # Optional: deploy via Helm using digest
 echo "🚀 Deploying $APP_NAME via Helm..."
-helm upgrade "$APP_NAME-aws" ./base-app \
+helm upgrade "$APP_NAME-aws" ../local/helm/base-app/generic \
   --install \
   -f ./values/${APP_NAME}.aws.yaml \
   --namespace default \
