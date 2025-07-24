@@ -27,11 +27,6 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- end }}
-          env:
-          {{- range $key, $value := .Values.envSecrets }}
-            - name: {{ $key }}
-              value: "{{ required (printf "Missing required value for envSecrets.%s" $key) $value }}"
-          {{- end }}
           envFrom:
             - secretRef:
                 name: {{ include "common.fullname" . }}-env
