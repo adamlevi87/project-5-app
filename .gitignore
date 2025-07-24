@@ -16,3 +16,7 @@ skaffold.yaml
 
 *deploy-info.env
 
+
+**/skaffold-backend.yaml
+**/skaffold-frontend.yaml
+
