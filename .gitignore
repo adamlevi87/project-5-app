@@ -1,6 +1,6 @@
 /local-testbed/.env
 /local/.env
-docker-compose/docker/postgres/init-db.sql
+*/docker/postgres/init-db.sql
 
 helm.backend.err.log
 
