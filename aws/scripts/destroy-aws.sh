@@ -17,6 +17,121 @@ echo -e "${GREEN}🧹 Cleaning up AWS resources before Terraform destroy${NC}"
 echo -e "${YELLOW}Cluster: ${CLUSTER_NAME}${NC}"
 echo -e "${YELLOW}Region: ${AWS_REGION}${NC}"
 
+# Function to verify and show what resources will be targeted
+verify_target_resources() {
+    echo -e "${YELLOW}🔍 Verifying target resources for cleanup...${NC}"
+    echo -e "${YELLOW}This script will ONLY target resources for:${NC}"
+    echo -e "   • Project: ${PROJECT_TAG}"
+    echo -e "   • Environment: ${ENVIRONMENT}"
+    echo -e "   • EKS Cluster: ${CLUSTER_NAME}"
+    echo -e "   • Domain: project-5.projects-devops.cfd"
+    echo -e "   • Region: ${AWS_REGION}"
+    echo ""
+    
+    # Check if EKS cluster exists
+    if aws eks describe-cluster --name "$CLUSTER_NAME" --region "$AWS_REGION" &> /dev/null; then
+        echo -e "${GREEN}✅ EKS cluster found: ${CLUSTER_NAME}${NC}"
+        
+        # Show what Kubernetes resources exist
+        if aws eks update-kubeconfig --region "$AWS_REGION" --name "$CLUSTER_NAME" &> /dev/null; then
+            echo -e "${YELLOW}📋 Kubernetes resources that will be deleted:${NC}"
+            
+            # Show ingress resources
+            INGRESS_COUNT=$(kubectl get ingress --all-namespaces --no-headers 2>/dev/null | wc -l)
+            echo -e "   • Ingress resources: ${INGRESS_COUNT}"
+            
+            # Show LoadBalancer services
+            LB_COUNT=$(kubectl get svc --all-namespaces -o wide 2>/dev/null | grep LoadBalancer | wc -l)
+            echo -e "   • LoadBalancer services: ${LB_COUNT}"
+        fi
+    else
+        echo -e "${YELLOW}⚠️  EKS cluster not found: ${CLUSTER_NAME}${NC}"
+    fi
+    
+    # Check for ALBs with our cluster tags
+    echo -e "${YELLOW}📋 Checking for ALBs tagged with cluster: ${CLUSTER_NAME}${NC}"
+    ALB_COUNT=0
+    ALBS=$(aws elbv2 describe-load-balancers --region "$AWS_REGION" --query "LoadBalancers[*].LoadBalancerArn" --output text 2>/dev/null)
+    
+    if [ -n "$ALBS" ]; then
+        for alb_arn in $ALBS; do
+            CLUSTER_TAG=$(aws elbv2 describe-tags --resource-arns "$alb_arn" --region "$AWS_REGION" \
+                --query "TagDescriptions[0].Tags[?Key=='elbv2.k8s.aws/cluster' && Value=='${CLUSTER_NAME}'].Value" \
+                --output text 2>/dev/null)
+            
+            if [ -n "$CLUSTER_TAG" ]; then
+                ALB_COUNT=$((ALB_COUNT + 1))
+                ALB_NAME=$(aws elbv2 describe-load-balancers --load-balancer-arns "$alb_arn" --region "$AWS_REGION" --query "LoadBalancers[0].LoadBalancerName" --output text)
+                echo -e "   • ALB: ${ALB_NAME}"
+            fi
+        done
+    fi
+    
+    if [ "$ALB_COUNT" -eq 0 ]; then
+        echo -e "${GREEN}✅ No ALBs found with cluster tag${NC}"
+    fi
+    
+    # Check for RDS instance
+    DB_IDENTIFIER="${PROJECT_TAG}-${ENVIRONMENT}-db"
+    if aws rds describe-db-instances --db-instance-identifier "$DB_IDENTIFIER" --region "$AWS_REGION" &> /dev/null; then
+        echo -e "${YELLOW}📋 RDS instance found: ${DB_IDENTIFIER}${NC}"
+        
+        DELETION_PROTECTION=$(aws rds describe-db-instances \
+            --db-instance-identifier "$DB_IDENTIFIER" \
+            --region "$AWS_REGION" \
+            --query "DBInstances[0].DeletionProtection" \
+            --output text)
+        
+        echo -e "   • Deletion protection: ${DELETION_PROTECTION}"
+    else
+        echo -e "${GREEN}✅ No RDS instance found${NC}"
+    fi
+    
+    # Check for DNS records
+    DOMAIN_NAME="projects-devops.cfd"
+    SUBDOMAIN_NAME="project-5"
+    FULL_DOMAIN="${SUBDOMAIN_NAME}.${DOMAIN_NAME}"
+    
+    ZONE_ID=$(aws route53 list-hosted-zones-by-name \
+        --dns-name "$DOMAIN_NAME" \
+        --region "$AWS_REGION" \
+        --query "HostedZones[?Name=='${DOMAIN_NAME}.'].Id" \
+        --output text 2>/dev/null | sed 's|/hostedzone/||')
+    
+    if [ -n "$ZONE_ID" ] && [ "$ZONE_ID" != "None" ]; then
+        echo -e "${YELLOW}📋 DNS records that will be checked for: ${FULL_DOMAIN}${NC}"
+        
+        # Count A records
+        A_COUNT=$(aws route53 list-resource-record-sets \
+            --hosted-zone-id "$ZONE_ID" \
+            --region "$AWS_REGION" \
+            --query "ResourceRecordSets[?Name=='${FULL_DOMAIN}.' && Type=='A']" \
+            --output json | jq length)
+        
+        echo -e "   • A records: ${A_COUNT}"
+        
+        # Count TXT records with ExternalDNS heritage
+        TXT_RECORDS=$(aws route53 list-resource-record-sets \
+            --hosted-zone-id "$ZONE_ID" \
+            --region "$AWS_REGION" \
+            --query "ResourceRecordSets[?Name=='${FULL_DOMAIN}.' && Type=='TXT']" \
+            --output json)
+        
+        EXTERNAL_DNS_TXT_COUNT=0
+        if [ "$TXT_RECORDS" != "[]" ]; then
+            EXTERNAL_DNS_TXT_COUNT=$(echo "$TXT_RECORDS" | jq -r '.[] | .ResourceRecords[0].Value' | grep -c "heritage=external-dns" || echo "0")
+        fi
+        
+        echo -e "   • ExternalDNS TXT records: ${EXTERNAL_DNS_TXT_COUNT}"
+    else
+        echo -e "${GREEN}✅ No hosted zone found for ${DOMAIN_NAME}${NC}"
+    fi
+    
+    echo ""
+    echo -e "${YELLOW}⚠️  This script will NOT affect any other AWS resources!${NC}"
+    echo ""
+}
+
 # Function to check if AWS CLI is configured
 check_aws_cli() {
     if ! aws sts get-caller-identity &> /dev/null; then
@@ -70,16 +185,16 @@ cleanup_kubernetes_ingress() {
 cleanup_external_dns_records() {
     echo -e "${YELLOW}🌐 Cleaning up Route53 DNS records created by ExternalDNS...${NC}"
     
-    # Domain from your terraform config
+    # Domain from your terraform config - BE VERY SPECIFIC HERE
     DOMAIN_NAME="projects-devops.cfd"
     SUBDOMAIN_NAME="project-5"
     FULL_DOMAIN="${SUBDOMAIN_NAME}.${DOMAIN_NAME}"
     
-    # Get the hosted zone ID
+    # Get the hosted zone ID - only for our specific domain
     ZONE_ID=$(aws route53 list-hosted-zones-by-name \
         --dns-name "$DOMAIN_NAME" \
         --region "$AWS_REGION" \
-        --query "HostedZones[0].Id" \
+        --query "HostedZones[?Name=='${DOMAIN_NAME}.'].Id" \
         --output text 2>/dev/null | sed 's|/hostedzone/||')
     
     if [ -z "$ZONE_ID" ] || [ "$ZONE_ID" = "None" ]; then
@@ -88,11 +203,11 @@ cleanup_external_dns_records() {
     fi
     
     echo -e "${YELLOW}📋 Found hosted zone: $ZONE_ID for domain: $DOMAIN_NAME${NC}"
+    echo -e "${YELLOW}🎯 Only targeting DNS records for: $FULL_DOMAIN${NC}"
     
-    # Get all DNS records for our subdomain
-    echo -e "${YELLOW}🔍 Looking for DNS records for: $FULL_DOMAIN${NC}"
+    # Get A records ONLY for our specific subdomain
+    echo -e "${YELLOW}🔍 Looking for A records for: $FULL_DOMAIN${NC}"
     
-    # Get A records created by ExternalDNS (they usually have TXT records with heritage=external-dns)
     RECORDS=$(aws route53 list-resource-record-sets \
         --hosted-zone-id "$ZONE_ID" \
         --region "$AWS_REGION" \
@@ -110,8 +225,10 @@ cleanup_external_dns_records() {
             RECORD_TYPE=$(echo "$RECORD_JSON" | jq -r '.Type')
             RECORD_NAME=$(echo "$RECORD_JSON" | jq -r '.Name')
             
-            # Create change batch for deletion
-            CHANGE_BATCH=$(cat <<EOF
+            # Double-check we're only deleting our specific subdomain
+            if [ "$RECORD_NAME" = "${FULL_DOMAIN}." ]; then
+                # Create change batch for deletion
+                CHANGE_BATCH=$(cat <<EOF
 {
     "Changes": [
         {
@@ -122,16 +239,21 @@ cleanup_external_dns_records() {
 }
 EOF
 )
-            
-            echo -e "${YELLOW}🗑️  Deleting $RECORD_TYPE record: $RECORD_NAME${NC}"
-            aws route53 change-resource-record-sets \
-                --hosted-zone-id "$ZONE_ID" \
-                --change-batch "$CHANGE_BATCH" \
-                --region "$AWS_REGION" > /dev/null || true
+                
+                echo -e "${YELLOW}🗑️  Deleting $RECORD_TYPE record: $RECORD_NAME${NC}"
+                aws route53 change-resource-record-sets \
+                    --hosted-zone-id "$ZONE_ID" \
+                    --change-batch "$CHANGE_BATCH" \
+                    --region "$AWS_REGION" > /dev/null || true
+            else
+                echo -e "${RED}⚠️  Skipping record with unexpected name: $RECORD_NAME${NC}"
+            fi
         done
     fi
     
-    # Also clean up any TXT records created by ExternalDNS for ownership
+    # Also clean up TXT records ONLY for our specific subdomain and only if they contain ExternalDNS heritage
+    echo -e "${YELLOW}🔍 Looking for ExternalDNS TXT records for: $FULL_DOMAIN${NC}"
+    
     TXT_RECORDS=$(aws route53 list-resource-record-sets \
         --hosted-zone-id "$ZONE_ID" \
         --region "$AWS_REGION" \
@@ -139,15 +261,16 @@ EOF
         --output json)
     
     if [ "$TXT_RECORDS" != "[]" ]; then
-        echo -e "${YELLOW}🗑️  Found TXT records for $FULL_DOMAIN, checking for ExternalDNS records...${NC}"
+        echo -e "${YELLOW}🔍 Found TXT records for $FULL_DOMAIN, checking for ExternalDNS records...${NC}"
         
         echo "$TXT_RECORDS" | jq -r '.[] | @base64' | while read -r record; do
             RECORD_JSON=$(echo "$record" | base64 -d)
+            RECORD_NAME=$(echo "$RECORD_JSON" | jq -r '.Name')
             RECORD_VALUE=$(echo "$RECORD_JSON" | jq -r '.ResourceRecords[0].Value')
             
-            # Check if this TXT record contains ExternalDNS heritage
-            if echo "$RECORD_VALUE" | grep -q "heritage=external-dns"; then
-                echo -e "${YELLOW}🗑️  Deleting ExternalDNS TXT record${NC}"
+            # Triple-check: correct subdomain AND ExternalDNS heritage
+            if [ "$RECORD_NAME" = "${FULL_DOMAIN}." ] && echo "$RECORD_VALUE" | grep -q "heritage=external-dns"; then
+                echo -e "${YELLOW}🗑️  Deleting ExternalDNS TXT record for $RECORD_NAME${NC}"
                 
                 CHANGE_BATCH=$(cat <<EOF
 {
@@ -165,6 +288,8 @@ EOF
                     --hosted-zone-id "$ZONE_ID" \
                     --change-batch "$CHANGE_BATCH" \
                     --region "$AWS_REGION" > /dev/null || true
+            else
+                echo -e "${GREEN}✅ Skipping TXT record (not ExternalDNS or wrong domain): $RECORD_NAME${NC}"
             fi
         done
     fi
@@ -252,9 +377,23 @@ check_rds_deletion_protection() {
 
 # Main execution
 main() {
-    echo -e "${GREEN}Starting cleanup process...${NC}"
+    echo -e "${GREEN}🔍 Starting pre-destroy cleanup verification...${NC}"
     
     check_aws_cli
+    verify_target_resources
+    
+    # Ask for confirmation before proceeding
+    echo -e "${YELLOW}⚠️  Are you sure you want to proceed with cleanup? This will delete the resources shown above.${NC}"
+    read -p "Continue? (y/N): " -n 1 -r
+    echo
+    
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}❌ Cleanup cancelled by user${NC}"
+        exit 0
+    fi
+    
+    echo -e "${GREEN}🧹 Starting cleanup process...${NC}"
+    
     cleanup_kubernetes_ingress
     wait_for_aws_cleanup
     cleanup_external_dns_records
@@ -262,11 +401,11 @@ main() {
     
     echo -e "${GREEN}🎉 Pre-destroy cleanup completed successfully!${NC}"
     echo -e "${YELLOW}📋 Summary of actions taken:${NC}"
-    echo -e "   • Deleted Kubernetes ingress resources"
-    echo -e "   • Deleted LoadBalancer services"
+    echo -e "   • Deleted Kubernetes ingress resources for cluster: ${CLUSTER_NAME}"
+    echo -e "   • Deleted LoadBalancer services for cluster: ${CLUSTER_NAME}"
     echo -e "   • Waited for AWS Load Balancer Controller to clean up ALBs/TGs/SGs"
-    echo -e "   • Cleaned up Route53 DNS records created by ExternalDNS"
-    echo -e "   • Checked/disabled RDS deletion protection"
+    echo -e "   • Cleaned up Route53 DNS records for: project-5.projects-devops.cfd"
+    echo -e "   • Checked/disabled RDS deletion protection for: ${PROJECT_TAG}-${ENVIRONMENT}-db"
     echo ""
     echo -e "${GREEN}✅ Ready for Terraform destroy!${NC}"
     echo -e "${YELLOW}📝 Next steps:${NC}"
