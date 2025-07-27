@@ -60,5 +60,5 @@ jobs:
 
       - name: Output summary
         run: |
-          echo "Frontend image built and pushed:"
+          echo "Backend image built and pushed:"
           echo "- Image: ${{ steps.digest.outputs.digest }}"

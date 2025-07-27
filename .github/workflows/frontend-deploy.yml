@@ -38,7 +38,7 @@ jobs:
 
       - name: Set image tagging variables
         run: |
-          IMAGE_BASE="${{ secrets.ECR_REPOSITORY_BACKEND }}"
+          IMAGE_BASE="${{ secrets.ECR_REPOSITORY_FRONTEND }}"
           TAG="${{ github.run_id }}-${{ steps.vars.outputs.sha_short }}"
           IMAGE_URI="${IMAGE_BASE}:${TAG}"
 
