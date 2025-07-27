@@ -1,8 +1,6 @@
 name: Backend - Build and Deploy to ECR
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 env:
