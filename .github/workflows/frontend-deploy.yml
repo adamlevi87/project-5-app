@@ -25,6 +25,12 @@ jobs:
       id-token: write  # Required for OIDC
 
     steps:
+      - name: Debug resolved secret key name
+        run: |
+          echo "Looking up: AWS_ROLE_TO_ASSUME_TF_${{ github.event.inputs.env }}"
+          echo "Looking up: AWS_REGION_TF_${{ github.event.inputs.env }}"
+          echo "Looking up: ECR_REPOSITORY_FRONTEND_TF_${{ github.event.inputs.env }}"
+        
       - name: Checkout code
         uses: actions/checkout@v4
 
