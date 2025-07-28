@@ -1,5 +1,4 @@
 name: Backend - Build and Deploy to ECR
-
 on:
   workflow_dispatch:
     inputs:
@@ -12,58 +11,79 @@ on:
           - DEV
           - STAGING
           - PROD
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: app/backend
-
     permissions:
       contents: read
       id-token: write  # Required for OIDC
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Set environment variables
+        run: |
+          case "${{ github.event.inputs.env }}" in
+            DEV)
+              echo "AWS_REGION=${{ vars.AWS_REGION_TF_DEV }}" >> $GITHUB_ENV
+              echo "AWS_ROLE_TO_ASSUME=${{ secrets.AWS_ROLE_TO_ASSUME_TF_DEV }}" >> $GITHUB_ENV
+              echo "ECR_REPOSITORY_BACKEND=${{ secrets.ECR_REPOSITORY_BACKEND_TF_DEV }}" >> $GITHUB_ENV
+              ;;
+            STAGING)
+              echo "AWS_REGION=${{ vars.AWS_REGION_TF_STAGING }}" >> $GITHUB_ENV
+              echo "AWS_ROLE_TO_ASSUME=${{ secrets.AWS_ROLE_TO_ASSUME_TF_STAGING }}" >> $GITHUB_ENV
+              echo "ECR_REPOSITORY_BACKEND=${{ secrets.ECR_REPOSITORY_BACKEND_TF_STAGING }}" >> $GITHUB_ENV
+              ;;
+            PROD)
+              echo "AWS_REGION=${{ vars.AWS_REGION_TF_PROD }}" >> $GITHUB_ENV
+              echo "AWS_ROLE_TO_ASSUME=${{ secrets.AWS_ROLE_TO_ASSUME_TF_PROD }}" >> $GITHUB_ENV
+              echo "ECR_REPOSITORY_BACKEND=${{ secrets.ECR_REPOSITORY_BACKEND_TF_PROD }}" >> $GITHUB_ENV
+              ;;
+          esac
 
+      - name: Debug Echo
+        run: |
+          echo "AWS_REGION ${{ env.AWS_REGION}} "
+          echo "AWS_ROLE_TO_ASSUME ${{ env.AWS_ROLE_TO_ASSUME}} "
+          echo "ECR_REPOSITORY_BACKEND ${{ env.ECR_REPOSITORY_BACKEND}} "
+      
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets[format('AWS_ROLE_TO_ASSUME_TF_%s', github.event.inputs.env)] }}
-          aws-region: ${{ vars[format('AWS_REGION_TF_%s', github.event.inputs.env)] }}
-
+          role-to-assume: ${{ env.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+      
       - name: Log in to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-
+      
       - name: Extract short SHA
         id: vars
         run: echo "sha_short=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
-
+      
       - name: Set image tagging variables
         run: |
-          IMAGE_BASE="${{ secrets[format('ECR_REPOSITORY_BACKEND_TF_%s', github.event.inputs.env)] }}"
+          IMAGE_BASE="${{ env.ECR_REPOSITORY_BACKEND }}"
           TAG="${{ github.run_id }}-${{ steps.vars.outputs.sha_short }}"
           IMAGE_URI="${IMAGE_BASE}:${TAG}"
-
           echo "IMAGE_BASE=$IMAGE_BASE" >> $GITHUB_ENV
           echo "TAG=$TAG" >> $GITHUB_ENV
           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
-
+      
       - name: Build and push Docker image
         run: |
           docker build --no-cache -t "$IMAGE_URI" .
           docker push "$IMAGE_URI"
-
-
+      
       - name: Capture image digest
         id: digest
         run: |
           DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE_URI")
           echo "digest=$DIGEST" >> $GITHUB_OUTPUT
-
+      
       - name: Output summary
         run: |
           echo "Backend image built and pushed:"
