@@ -2,10 +2,20 @@ name: Backend - Build and Deploy to ECR
 
 on:
   workflow_dispatch:
+    inputs:
+      env:
+        description: "Environment to manage"
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
 
 env:
-  AWS_REGION: ${{ vars.AWS_REGION }}
-  ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_BACKEND }}
+  AWS_REGION: ${{ vars[format('AWS_REGION_TF_%s', github.event.inputs.env)] }}
+  ECR_REPOSITORY: ${{ secrets[format('ECR_REPOSITORY_BACKEND_TF_%s', github.event.inputs.env)] }}
 
 jobs:
   build-and-deploy:
@@ -25,7 +35,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-to-assume: ${{ secrets[format('AWS_ROLE_TO_ASSUME_TF_%s', github.event.inputs.env)] }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Log in to Amazon ECR
@@ -38,7 +48,7 @@ jobs:
 
       - name: Set image tagging variables
         run: |
-          IMAGE_BASE="${{ secrets.ECR_REPOSITORY_BACKEND }}"
+          IMAGE_BASE="${ECR_REPOSITORY}"
           TAG="${{ github.run_id }}-${{ steps.vars.outputs.sha_short }}"
           IMAGE_URI="${IMAGE_BASE}:${TAG}"
 
