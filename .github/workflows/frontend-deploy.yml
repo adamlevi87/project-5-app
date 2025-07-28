@@ -16,6 +16,10 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ${{ vars[format('AWS_REGION_TF_%s', github.event.inputs.env)] }}
+      AWS_ROLE_TO_ASSUME: ${{ secrets[format('AWS_ROLE_TO_ASSUME_TF_%s', github.event.inputs.env)] }}
+      ECR_REPOSITORY_FRONTEND: ${{ secrets[format('ECR_REPOSITORY_FRONTEND_TF_%s', github.event.inputs.env)] }}
     defaults:
       run:
         working-directory: app/frontend
@@ -28,10 +32,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Export dynamic AWS context
+      - name: Debug Echo
         run: |
-          echo "AWS_REGION=${{ vars[format('AWS_REGION_TF_%s', github.event.inputs.env)] }}" >> $GITHUB_ENV
-          echo "AWS_ROLE_TO_ASSUME=${{ secrets[format('AWS_ROLE_TO_ASSUME_TF_%s', github.event.inputs.env)] }}" >> $GITHUB_ENV
+          echo "AWS_REGION ${{ env.AWS_REGION}} "
+          echo "AWS_ROLE_TO_ASSUME ${{ env.AWS_ROLE_TO_ASSUME}} "
+          echo "ECR_REPOSITORY_FRONTEND ${{ env.ECR_REPOSITORY_FRONTEND}} "
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -49,7 +54,7 @@ jobs:
 
       - name: Set image tagging variables
         run: |
-          IMAGE_BASE="${{ secrets[format('ECR_REPOSITORY_FRONTEND_TF_%s', github.event.inputs.env)] }}"
+          IMAGE_BASE="${{ env.ECR_REPOSITORY_FRONTEND }}""
           TAG="${{ github.run_id }}-${{ steps.vars.outputs.sha_short }}"
           IMAGE_URI="${IMAGE_BASE}:${TAG}"
 
