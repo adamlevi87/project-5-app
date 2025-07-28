@@ -14,7 +14,6 @@ on:
           - prod
 
 env:
-  AWS_REGION: ${{ vars[format('AWS_REGION_TF_%s', github.event.inputs.env)] }}
   ECR_REPOSITORY: ${{ secrets[format('ECR_REPOSITORY_BACKEND_TF_%s', github.event.inputs.env)] }}
 
 jobs:
@@ -36,7 +35,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets[format('AWS_ROLE_TO_ASSUME_TF_%s', github.event.inputs.env)] }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ vars[format('AWS_REGION_TF_%s', github.event.inputs.env)] }}
 
       - name: Log in to Amazon ECR
         id: login-ecr
