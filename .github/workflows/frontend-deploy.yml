@@ -25,13 +25,13 @@ jobs:
       id-token: write  # Required for OIDC
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Export dynamic AWS context
         run: |
           echo "AWS_REGION=${{ vars[format('AWS_REGION_TF_%s', github.event.inputs.env)] }}" >> $GITHUB_ENV
           echo "AWS_ROLE_TO_ASSUME=${{ secrets[format('AWS_ROLE_TO_ASSUME_TF_%s', github.event.inputs.env)] }}" >> $GITHUB_ENV
-
-      - name: Checkout code
-        uses: actions/checkout@v4
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
