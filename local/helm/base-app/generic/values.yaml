@@ -40,3 +40,12 @@ resources:
   limits:
     cpu: null           # Must be overridden
     memory: null        # Must be overridden
+
+# External Secrets  
+externalSecrets:
+enabled: false
+secretStoreRef:
+  name: aws-secretsmanager
+  kind: ClusterSecretStore
+remoteKey: /project/backend/env
+targetSecretName: backend-env
