@@ -8,21 +8,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Create debug file with AWS secrets
-        shell: bash
+      - name: Set environment variables manually
         run: |
-          {
-            echo "AWS_ROLE_TO_ASSUME_TF_DEV=${{ secrets.AWS_ROLE_TO_ASSUME_TF_DEV }}"
-            echo "ECR_REPOSITORY_FRONTEND_TF_DEV=${{ secrets.ECR_REPOSITORY_FRONTEND_TF_DEV }}"
-            echo "ECR_REPOSITORY_BACKEND_TF_DEV=${{ secrets.ECR_REPOSITORY_BACKEND_TF_DEV }}"
-            echo "AWS_REGION_TF_DEV=${{ vars.AWS_REGION_TF_DEV }}"
-          } > $GITHUB_WORKSPACE/secrets-debug.txt
+          echo "AWS_ROLE_TO_ASSUME_TF_DEV=${AWS_ROLE_TO_ASSUME_TF_DEV}" >> secrets-debug.txt
+          echo "ECR_REPOSITORY_FRONTEND_TF_DEV=${ECR_REPOSITORY_FRONTEND_TF_DEV}" >> secrets-debug.txt
+          echo "ECR_REPOSITORY_BACKEND_TF_DEV=${ECR_REPOSITORY_BACKEND_TF_DEV}" >> secrets-debug.txt
+          echo "AWS_REGION_TF_DEV=${AWS_REGION_TF_DEV}" >> secrets-debug.txt
+        env:
+          AWS_ROLE_TO_ASSUME_TF_DEV: ${{ secrets.AWS_ROLE_TO_ASSUME_TF_DEV }}
+          ECR_REPOSITORY_FRONTEND_TF_DEV: ${{ secrets.ECR_REPOSITORY_FRONTEND_TF_DEV }}
+          ECR_REPOSITORY_BACKEND_TF_DEV: ${{ secrets.ECR_REPOSITORY_BACKEND_TF_DEV }}
+          AWS_REGION_TF_DEV: ${{ vars.AWS_REGION_TF_DEV }}
 
-      - name: List generated files
-        run: ls -lah $GITHUB_WORKSPACE
+      - name: Show file contents for confirmation (safe to keep)
+        run: cat secrets-debug.txt
 
-      - name: Upload debug secrets as artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: secrets-dump
-          path: $GITHUB_WORKSPACE/secrets-debug.txt
+          path: secrets-debug.txt
