@@ -30,7 +30,8 @@ jobs:
             DEV)
               echo "AWS_REGION=${{ vars.AWS_REGION_TF_DEV }}" >> $GITHUB_ENV
               echo "AWS_ROLE_TO_ASSUME=${{ secrets.AWS_ROLE_TO_ASSUME_TF_DEV }}" >> $GITHUB_ENV
-              echo "ECR_REPOSITORY_FRONTEND=${{ secrets.ECR_REPOSITORY_FRONTEND_TF_DEV }}" >> $GITHUB_ENV
+              #echo "ECR_REPOSITORY_FRONTEND=${{ secrets.ECR_REPOSITORY_FRONTEND_TF_DEV }}" >> $GITHUB_ENV
+              #echo "ECR_REPOSITORY_FRONTEND=${{ vars.ECR_REPOSITORY_FRONTEND_TF_DEV }}" >> $GITHUB_ENV
               ;;
             STAGING)
               echo "AWS_REGION=${{ vars.AWS_REGION_TF_STAGING }}" >> $GITHUB_ENV
@@ -43,18 +44,19 @@ jobs:
               echo "ECR_REPOSITORY_FRONTEND=${{ secrets.ECR_REPOSITORY_FRONTEND_TF_PROD }}" >> $GITHUB_ENV
               ;;
           esac
-
-      - name: Debug Echo
-        run: |
-          echo "AWS_REGION ${{ env.AWS_REGION}} "
-          echo "AWS_ROLE_TO_ASSUME ${{ env.AWS_ROLE_TO_ASSUME}} "
-          echo "ECR_REPOSITORY_FRONTEND ${{ env.ECR_REPOSITORY_FRONTEND}} "
       
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Debug Echo
+        run: |
+          echo "AWS_REGION ${{ env.AWS_REGION}} "
+          echo "AWS_ROLE_TO_ASSUME ${{ env.AWS_ROLE_TO_ASSUME}} "
+          echo "ECR_REPOSITORY_FRONTEND ${{ env.ECR_REPOSITORY_FRONTEND}} "
+          aws sts get-caller-identity
       
       - name: Log in to Amazon ECR
         id: login-ecr
