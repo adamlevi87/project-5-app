@@ -29,9 +29,9 @@ jobs:
           case "${{ github.event.inputs.env }}" in
             DEV)
               echo "AWS_REGION=${{ vars.AWS_REGION_TF_DEV }}" >> $GITHUB_ENV
-              echo "AWS_ROLE_TO_ASSUME=${{ secrets.AWS_ROLE_TO_ASSUME_TF_DEV }}" >> $GITHUB_ENV
+              echo "AWS_ROLE_TO_ASSUME=${{ vars.AWS_ROLE_TO_ASSUME_TF_DEV }}" >> $GITHUB_ENV
               #echo "ECR_REPOSITORY_FRONTEND=${{ secrets.ECR_REPOSITORY_FRONTEND_TF_DEV }}" >> $GITHUB_ENV
-              #echo "ECR_REPOSITORY_FRONTEND=${{ vars.ECR_REPOSITORY_FRONTEND_TF_DEV }}" >> $GITHUB_ENV
+              echo "ECR_REPOSITORY_FRONTEND=${{ vars.ECR_REPOSITORY_FRONTEND_TF_DEV }}" >> $GITHUB_ENV
               ;;
             STAGING)
               echo "AWS_REGION=${{ vars.AWS_REGION_TF_STAGING }}" >> $GITHUB_ENV
