@@ -44,12 +44,6 @@ jobs:
               ;;
           esac
 
-      - name: Debug Echo
-        run: |
-          echo "AWS_REGION ${{ env.AWS_REGION}} "
-          echo "AWS_ROLE_TO_ASSUME ${{ env.AWS_ROLE_TO_ASSUME}} "
-          echo "ECR_REPOSITORY_BACKEND ${{ env.ECR_REPOSITORY_BACKEND}} "
-      
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
