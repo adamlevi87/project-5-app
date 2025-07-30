@@ -1,0 +1,28 @@
+name: Debug AWS Secrets
+
+on:
+  workflow_dispatch:
+
+jobs:
+  debug-secrets:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create debug file with AWS secrets
+        shell: bash
+        run: |
+          {
+            echo "AWS_ROLE_TO_ASSUME_TF_DEV=${{ secrets.AWS_ROLE_TO_ASSUME_TF_DEV }}"
+            echo "ECR_REPOSITORY_FRONTEND_TF_DEV=${{ secrets.ECR_REPOSITORY_FRONTEND_TF_DEV }}"
+            echo "ECR_REPOSITORY_BACKEND_TF_DEV=${{ secrets.ECR_REPOSITORY_BACKEND_TF_DEV }}"
+            echo "AWS_REGION_TF_DEV=${{ vars.AWS_REGION_TF_DEV }}"
+          } > $GITHUB_WORKSPACE/secrets-debug.txt
+
+      - name: List generated files
+        run: ls -lah $GITHUB_WORKSPACE
+
+      - name: Upload debug secrets as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: secrets-dump
+          path: $GITHUB_WORKSPACE/secrets-debug.txt
