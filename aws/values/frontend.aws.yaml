@@ -3,6 +3,7 @@
 
 image:
   repository: "593793036161.dkr.ecr.us-east-1.amazonaws.com/project-5-dev-frontend"
+  digest: "sha256:15dd684cecf263d397865a9b75391ef1ab8d9fbee681031cf205d3deb8ef3939"
   tag: ""
   pullPolicy: Always
 
@@ -27,7 +28,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: "443"
     # Removed hardcoded target group ARN - let ALB controller create it
-    alb.ingress.kubernetes.io/group.name: "project-5-dev-shared"
+    alb.ingress.kubernetes.io/group.name: "project-5-dev-node-group"
 
 replicaCount: 2
 
@@ -47,6 +48,15 @@ resources:
   limits:
     cpu: 500m
     memory: 512Mi
+
+# External Secrets  
+externalSecrets:
+  enabled: false
+  secretStoreRef:
+    name: aws-secretsmanager
+    kind: ClusterSecretStore
+  remoteKey: /project/frontend/env
+  targetSecretName: frontend-env
 
 envSecrets:
   # Frontend connects to backend via the ALB

@@ -3,6 +3,7 @@
 
 image:
   repository: "593793036161.dkr.ecr.us-east-1.amazonaws.com/project-5-dev-backend"
+  digest: "sha256:ada38aa54b2679266f335ba8652dfeb7f48ddeaedffe900a26fe1cedd1391289"
   tag: ""
   pullPolicy: Always
 
@@ -26,7 +27,7 @@ ingress:
     alb.ingress.kubernetes.io/target-type: "ip"
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: "443"
-    alb.ingress.kubernetes.io/group.name: "project-5-dev-shared"
+    alb.ingress.kubernetes.io/group.name: "project-5-dev-node-group"
 
 replicaCount: 2
 
@@ -46,6 +47,15 @@ resources:
     cpu: 1000m
     memory: 1Gi
 
+# External Secrets  
+externalSecrets:
+  enabled: false
+  secretStoreRef:
+    name: aws-secretsmanager
+    kind: ClusterSecretStore
+  remoteKey: /project/backend/env
+  targetSecretName: backend-env
+
 envSecrets:
   # AWS Configuration
   AWS_REGION: "us-east-1"
@@ -55,7 +65,7 @@ envSecrets:
   DB_PORT: "5432"
   DB_NAME: "myapp_db"
   DB_USER: "myapp"
-  DB_PASSWORD: "fZ|P>#+lN0lVn:)4"
+  DB_PASSWORD: "}g73FdcJQZo*pLso"
   # DB_PASSWORD will be injected from AWS Secrets Manager
   POSTGRES_TABLE: "messages"
   # Controls backend communication with the DB - on AWS ssl is required
