@@ -3,7 +3,7 @@
 
 image:
   repository: "593793036161.dkr.ecr.us-east-1.amazonaws.com/project-5-dev-frontend"
-  digest: "sha256:15dd684cecf263d397865a9b75391ef1ab8d9fbee681031cf205d3deb8ef3939"
+  digest: "sha256:b80f1483da97d4df2ab075ae52d9610e565127a277f94b43e397a747e81e395b"
   tag: ""
   pullPolicy: Always
 
