@@ -59,7 +59,7 @@ externalSecrets:
     name: aws-secretsmanager
     kind: SecretStore
   remoteKey: project-5-frontend-envs
-  targetSecretName: frontend-env
+  #targetSecretName: frontend-env
 
 envSecrets:
   # Frontend connects to backend via the ALB
