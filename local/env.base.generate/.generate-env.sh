@@ -30,6 +30,8 @@ image:
   digest: ""
   pullPolicy: IfNotPresent
 
+namespace: "${BACKEND_NAMESPACE}"
+
 service:
   type: "${BACKEND_SERVICE_TYPE}"
   port: "${INGRESS_CONTROLLER_TARGET_PORT_AND_SERVICES_PORT}"
@@ -91,6 +93,8 @@ image:
   tag: "${FRONTEND_REPOSITORY_TAG}"
   digest: ""
   pullPolicy: IfNotPresent
+
+namespace: "${FRONTEND_NAMESPACE}"
 
 service:
   type: "${FRONTEND_SERVICE_TYPE}"

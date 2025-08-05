@@ -7,13 +7,15 @@ image:
   tag: ""
   pullPolicy: Always
 
+namespace: frontend
+
 service:
   type: "ClusterIP"
   port: 80
 
 serviceAccount:
   create: false
-  name: backend-sa
+  name: frontend-sa
 
 containerPort: 80
 
@@ -30,13 +32,13 @@ ingress:
     # Removed hardcoded target group ARN - let ALB controller create it
     alb.ingress.kubernetes.io/group.name: "project-5-dev-node-group"
 
-replicaCount: 2
+replicaCount: 1
 
 # HPA Configuration
 autoscaling:
   enabled: true
-  minReplicas: 2
-  maxReplicas: 3
+  minReplicas: 1
+  maxReplicas: 2
   targetCPUUtilizationPercentage: 70
   # targetMemoryUtilizationPercentage: 80  # Optional
 
@@ -52,10 +54,11 @@ resources:
 # External Secrets  
 externalSecrets:
   enabled: false
+  externalSecretName: frontend-app-secrets
   secretStoreRef:
     name: aws-secretsmanager
-    kind: ClusterSecretStore
-  remoteKey: /project/frontend/env
+    kind: SecretStore
+  remoteKey: project-5-frontend-envs
   targetSecretName: frontend-env
 
 envSecrets:

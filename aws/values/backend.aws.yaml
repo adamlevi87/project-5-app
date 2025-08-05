@@ -7,6 +7,8 @@ image:
   tag: ""
   pullPolicy: Always
 
+namespace: backend
+
 service:
   type: "ClusterIP"
   port: 80
@@ -29,13 +31,13 @@ ingress:
     alb.ingress.kubernetes.io/ssl-redirect: "443"
     alb.ingress.kubernetes.io/group.name: "project-5-dev-node-group"
 
-replicaCount: 2
+replicaCount: 1
 
 # HPA Configuration
 autoscaling:
   enabled: true
-  minReplicas: 2
-  maxReplicas: 4
+  minReplicas: 1
+  maxReplicas: 2
   targetCPUUtilizationPercentage: 70
 
 # Resource requests/limits for HPA to work
@@ -50,10 +52,11 @@ resources:
 # External Secrets  
 externalSecrets:
   enabled: false
+  externalSecretName: backend-app-secrets
   secretStoreRef:
     name: aws-secretsmanager
-    kind: ClusterSecretStore
-  remoteKey: /project/backend/env
+    kind: SecretStore
+  remoteKey: project-5-backend-envs
   targetSecretName: backend-env
 
 envSecrets:

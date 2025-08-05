@@ -6,6 +6,8 @@ image:
   tag: ""               # Optional: could default to "latest"
   pullPolicy: IfNotPresent
 
+namespace: ""          # Must be overridden
+
 service:
   type: null            # Must be overridden
   port: null            # Must be overridden
