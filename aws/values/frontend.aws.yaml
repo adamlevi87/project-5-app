@@ -32,7 +32,7 @@ ingress:
     # Removed hardcoded target group ARN - let ALB controller create it
     alb.ingress.kubernetes.io/group.name: "project-5-dev-node-group"
   
-    alb.ingress.kubernetes.io/security-groups: "${security_group_id}"
+    #alb.ingress.kubernetes.io/security-groups: "${security_group_id}"
     alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:593793036161:certificate/2a0fe622-e926-46df-bf31-17d2a5c5013b"
     # External DNS annotation (optional - helps external-dns identify the record)
     external-dns.alpha.kubernetes.io/hostname: "project-5.projects-devops.cfd"
