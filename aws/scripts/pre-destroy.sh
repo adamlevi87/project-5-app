@@ -51,12 +51,12 @@ for NS in "${NAMESPACES[@]}"; do
     kubectl delete targetgroupbinding "$TGB_NAME" -n "$NS" || true
   done
 
-  echo "📛 Cleaning up Ingress resources in $NS..."
-  INGRESS_NAMES=$(kubectl get ingress -n "$NS" -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' || true)
-  for INGRESS_NAME in $INGRESS_NAMES; do
-    echo "🗑 Deleting Ingress: $INGRESS_NAME"
-    kubectl delete ingress "$INGRESS_NAME" -n "$NS" || true
-  done
+  # echo "📛 Cleaning up Ingress resources in $NS..."
+  # INGRESS_NAMES=$(kubectl get ingress -n "$NS" -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' || true)
+  # for INGRESS_NAME in $INGRESS_NAMES; do
+  #   echo "🗑 Deleting Ingress: $INGRESS_NAME"
+  #   kubectl delete ingress "$INGRESS_NAME" -n "$NS" || true
+  # done
 
   echo "✅ Finished namespace: $NS"
   echo

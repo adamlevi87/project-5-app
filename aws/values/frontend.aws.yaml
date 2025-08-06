@@ -21,7 +21,7 @@ containerPort: 80
 
 ingress:
   enabled: true
-  host: "project-5.projects-devops.cfd"
+  host: "apps.project-5.projects-devops.cfd"
   ingressControllerClassResourceName: "alb"
   ingressPath: "/"
   annotations:
@@ -35,7 +35,7 @@ ingress:
     #alb.ingress.kubernetes.io/security-groups: "${security_group_id}"
     alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:593793036161:certificate/2a0fe622-e926-46df-bf31-17d2a5c5013b"
     # External DNS annotation (optional - helps external-dns identify the record)
-    external-dns.alpha.kubernetes.io/hostname: "project-5.projects-devops.cfd"
+    external-dns.alpha.kubernetes.io/hostname: "apps.project-5.projects-devops.cfd"
 
 replicaCount: 1
 
@@ -68,4 +68,4 @@ externalSecrets:
 
 envSecrets:
   # Frontend connects to backend via the ALB
-  REACT_APP_BACKEND_URL: "https://project-5.projects-devops.cfd"
+  REACT_APP_BACKEND_URL: "https://apps.project-5.projects-devops.cfd"

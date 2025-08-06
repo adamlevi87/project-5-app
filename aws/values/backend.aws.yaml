@@ -21,7 +21,7 @@ containerPort: 3000
 
 ingress:
   enabled: true
-  host: "project-5.projects-devops.cfd"
+  host: "apps.project-5.projects-devops.cfd"
   ingressControllerClassResourceName: "alb"
   ingressPath: "/submit"
   annotations:
@@ -78,7 +78,7 @@ envSecrets:
   SQS_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/593793036161/project-5-dev-app-messages"
   
   # CORS Configuration
-  BACKEND_HOST_ADDRESS: "project-5.projects-devops.cfd"
-  FRONTEND_HOST_ADDRESS: "project-5.projects-devops.cfd"
+  BACKEND_HOST_ADDRESS: "apps.project-5.projects-devops.cfd"
+  FRONTEND_HOST_ADDRESS: "apps.project-5.projects-devops.cfd"
  
   
