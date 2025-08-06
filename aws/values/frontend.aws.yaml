@@ -29,7 +29,7 @@ ingress:
     alb.ingress.kubernetes.io/target-type: "ip"
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: "443"
-    alb.ingress.kubernetes.io/group.name: "project-5-dev-node-group"
+    alb.ingress.kubernetes.io/group.name: "project-5-alb-shared-group"
     alb.ingress.kubernetes.io/security-groups: "${security_group_id}"
     alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:593793036161:certificate/93219da1-66a4-40a1-aba7-36c0d3345e35"
     # External DNS annotation (optional - helps external-dns identify the record)
