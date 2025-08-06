@@ -51,12 +51,12 @@ for NS in "${NAMESPACES[@]}"; do
     kubectl delete targetgroupbinding "$TGB_NAME" -n "$NS" || true
   done
 
-  kubectl get ingress -A -o json \
-    | jq -r '.items[] | select(.metadata.finalizers[]? | startswith("group.ingress.k8s.aws/") or startswith("elbv2.k8s.aws/")) | "\(.metadata.namespace) \(.metadata.name)"' \
-    | while read ns name; do
-      echo "🛠 Patching finalizer on $ns/$name"
-      kubectl patch ingress "$name" -n "$ns" -p '{"metadata":{"finalizers":[]}}' --type=merge
-    done
+  # kubectl get ingress -A -o json \
+  #   | jq -r '.items[] | select(.metadata.finalizers[]? | startswith("group.ingress.k8s.aws/") or startswith("elbv2.k8s.aws/")) | "\(.metadata.namespace) \(.metadata.name)"' \
+  #   | while read ns name; do
+  #     echo "🛠 Patching finalizer on $ns/$name"
+  #     kubectl patch ingress "$name" -n "$ns" -p '{"metadata":{"finalizers":[]}}' --type=merge
+  #   done
   for ingress in $(kubectl get ingress -n "$ns" -o name); do
     kubectl delete "$ingress" -n "$ns" --ignore-not-found
   done
