@@ -30,6 +30,10 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: "443"
     alb.ingress.kubernetes.io/group.name: "project-5-dev-node-group"
+    alb.ingress.kubernetes.io/security-groups: "${security_group_id}"
+    alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:593793036161:certificate/2a0fe622-e926-46df-bf31-17d2a5c5013b"
+    # External DNS annotation (optional - helps external-dns identify the record)
+    external-dns.alpha.kubernetes.io/hostname: "apps.project-5.projects-devops.cfd"
 
 replicaCount: 1
 
@@ -57,7 +61,6 @@ externalSecrets:
     name: aws-secretsmanager
     kind: SecretStore
   remoteKey: project-5-backend-envs
-  targetSecretName: backend-env
 
 envSecrets:
   # AWS Configuration
