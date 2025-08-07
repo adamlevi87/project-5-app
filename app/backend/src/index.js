@@ -17,6 +17,7 @@ console.log('CORS BACKEND_HOST_ADDRESS:', process.env.BACKEND_HOST_ADDRESS);
 
 if (process.env.BACKEND_HOST_ADDRESS) {
   origins.push(`http://${process.env.BACKEND_HOST_ADDRESS}`);
+  origins.push(`https://${process.env.BACKEND_HOST_ADDRESS}`);
 }
 
 // Log what FRONTEND_HOST_ADDRESS is (for debugging)
@@ -24,6 +25,7 @@ console.log('CORS FRONTEND_HOST_ADDRESS:', process.env.FRONTEND_HOST_ADDRESS);
 
 if (process.env.FRONTEND_HOST_ADDRESS) {
   origins.push(`http://${process.env.FRONTEND_HOST_ADDRESS}`);
+  origins.push(`https://${process.env.FRONTEND_HOST_ADDRESS}`);
 }
 
 app.use(cors({ origin: origins }));
