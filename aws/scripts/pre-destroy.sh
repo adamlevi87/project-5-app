@@ -57,8 +57,8 @@ for NS in "${NAMESPACES[@]}"; do
   #     echo "🛠 Patching finalizer on $ns/$name"
   #     kubectl patch ingress "$name" -n "$ns" -p '{"metadata":{"finalizers":[]}}' --type=merge
   #   done
-  for ingress in $(kubectl get ingress -n "$ns" -o name); do
-    kubectl delete "$ingress" -n "$ns" --ignore-not-found
+  for ingress in $(kubectl get ingress -n "$NS" -o name); do
+    kubectl delete "$ingress" -n "$NS" --ignore-not-found
   done
 
 
