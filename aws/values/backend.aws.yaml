@@ -30,7 +30,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: "443"
     alb.ingress.kubernetes.io/group.name: "project-5-dev-alb-shared-group"
-    alb.ingress.kubernetes.io/security-groups: "sg-026b205f7fa4803e4,sg-0d9ea4e6362837324,sg-0e6f7f4326c96ab01"
+    alb.ingress.kubernetes.io/security-groups: "sg-0680cc31c5e4a186f,sg-0ff747fe36f4bd52d,sg-0928770042ef04c6b"
     alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:593793036161:certificate/93219da1-66a4-40a1-aba7-36c0d3345e35"
     # External DNS annotation (optional - helps external-dns identify the record)
     external-dns.alpha.kubernetes.io/hostname: "backend-app.project-5.projects-devops.cfd"
@@ -62,26 +62,26 @@ externalSecrets:
     kind: SecretStore
   remoteKey: project-5-dev-backend-envs
 
-envSecrets:
-  # AWS Configuration
-  AWS_REGION: "us-east-1"
+# envSecrets:
+#   # AWS Configuration
+#   AWS_REGION: "us-east-1"
   
-  # Database Configuration
-  DB_HOST: "project-5-dev-db.cbky8om2asia.us-east-1.rds.amazonaws.com"
-  DB_PORT: "5432"
-  DB_NAME: "myapp_db"
-  DB_USER: "myapp"
-  DB_PASSWORD: "Eie7Ofm2bb=g-J=)"
-  # DB_PASSWORD will be injected from AWS Secrets Manager
-  POSTGRES_TABLE: "messages"
-  # Controls backend communication with the DB - on AWS ssl is required
-  NODE_ENV: "production"
+#   # Database Configuration
+#   DB_HOST: "project-5-dev-db.cbky8om2asia.us-east-1.rds.amazonaws.com"
+#   DB_PORT: "5432"
+#   DB_NAME: "myapp_db"
+#   DB_USER: "myapp"
+#   DB_PASSWORD: "A$=f2>=.WxG!$08g"
+#   # DB_PASSWORD will be injected from AWS Secrets Manager
+#   POSTGRES_TABLE: "messages"
+#   # Controls backend communication with the DB - on AWS ssl is required
+#   NODE_ENV: "production"
 
-  # SQS Configuration
-  SQS_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/593793036161/project-5-dev-app-messages"
+#   # SQS Configuration
+#   SQS_QUEUE_URL: "https://sqs.us-east-1.amazonaws.com/593793036161/project-5-dev-app-messages"
   
-  # CORS Configuration
-  BACKEND_HOST_ADDRESS: "backend-app.project-5.projects-devops.cfd"
-  FRONTEND_HOST_ADDRESS: "frontend-app.project-5.projects-devops.cfd"
+#   # CORS Configuration
+#   BACKEND_HOST_ADDRESS: "backend-app.project-5.projects-devops.cfd"
+#   FRONTEND_HOST_ADDRESS: "frontend-app.project-5.projects-devops.cfd"
  
   
