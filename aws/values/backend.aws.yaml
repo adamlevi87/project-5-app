@@ -60,7 +60,7 @@ externalSecrets:
   secretStoreRef:
     name: aws-secretsmanager
     kind: SecretStore
-  remoteKey: project-5-backend-envs
+  remoteKey: project-5-dev-backend-envs
 
 envSecrets:
   # AWS Configuration
