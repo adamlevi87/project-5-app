@@ -3,7 +3,7 @@
 
 image:
   repository: "593793036161.dkr.ecr.us-east-1.amazonaws.com/project-5-dev-frontend"
-  digest: "sha256:b80f1483da97d4df2ab075ae52d9610e565127a277f94b43e397a747e81e395b"
+  digest: "sha256:84783d64c351cf966a7f87eef83793d512a628103676b3d609c5a5c4ad3fcc66"
   tag: ""
   pullPolicy: Always
 
@@ -30,7 +30,7 @@ ingress:
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
     alb.ingress.kubernetes.io/ssl-redirect: "443"
     alb.ingress.kubernetes.io/group.name: "project-5-alb-shared-group"
-    alb.ingress.kubernetes.io/security-groups: "${security_group_id}"
+    alb.ingress.kubernetes.io/security-groups: "sg-0d9ea4e6362837324"
     alb.ingress.kubernetes.io/certificate-arn: "arn:aws:acm:us-east-1:593793036161:certificate/93219da1-66a4-40a1-aba7-36c0d3345e35"
     # External DNS annotation (optional - helps external-dns identify the record)
     external-dns.alpha.kubernetes.io/hostname: "frontend-app.project-5.projects-devops.cfd"
@@ -56,7 +56,7 @@ resources:
 
 # External Secrets  
 externalSecrets:
-  enabled: false
+  enabled: true
   externalSecretName: frontend-app-secrets
   secretStoreRef:
     name: aws-secretsmanager
