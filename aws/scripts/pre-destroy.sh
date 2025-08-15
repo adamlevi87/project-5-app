@@ -8,8 +8,41 @@ if [ ${#NAMESPACES[@]} -eq 0 ]; then
   exit 1
 fi
 
+# Function to delete ArgoCD applications
+delete_argocd_apps() {
+  local APP_NAME="$1"
+  echo "🔍 Checking for ArgoCD application: $APP_NAME"
+  
+  if kubectl get application "$APP_NAME" -n argocd >/dev/null 2>&1; then
+    echo "🗑 Deleting ArgoCD application: $APP_NAME"
+    
+    # First try graceful deletion
+    kubectl delete application "$APP_NAME" -n argocd --timeout=30s || {
+      echo "⚠️  Graceful deletion failed, force removing finalizers..."
+      kubectl patch application "$APP_NAME" -n argocd -p '{"metadata":{"finalizers":null}}' --type=merge || true
+      kubectl delete application "$APP_NAME" -n argocd --force --grace-period=0 || true
+    }
+    
+    # Wait a bit for ArgoCD to stop managing resources
+    echo "⏳ Waiting for ArgoCD to stop managing resources..."
+    sleep 5
+  else
+    echo "ℹ️  No ArgoCD application found for: $APP_NAME"
+  fi
+}
+
 for NS in "${NAMESPACES[@]}"; do
   echo "🌐 Processing namespace: $NS"
+
+  # Handle ArgoCD applications for backend/frontend namespaces
+  case "$NS" in
+    "backend"|"frontend")
+      delete_argocd_apps "$NS-app"
+      ;;
+    *)
+      echo "ℹ️  Namespace $NS: Skipping ArgoCD application check"
+      ;;
+  esac
 
   TGBS=$(kubectl get targetgroupbindings.elbv2.k8s.aws -n "$NS" -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}' || true)
   if [ -z "$TGBS" ]; then
