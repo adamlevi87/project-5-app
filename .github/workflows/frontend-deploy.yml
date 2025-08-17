@@ -111,6 +111,7 @@ jobs:
           ENVIRONMENT: ${{ github.event.inputs.env }}
           NEW_DIGEST: ${{ steps.digest.outputs.digest_only }}
         run: |
+          rm -rf gitops-repo
           git clone https://x-access-token:${GH_TOKEN}@github.com/${GITOPS_REPO}.git gitops-repo
           cd gitops-repo
           
@@ -132,7 +133,6 @@ jobs:
           ENVIRONMENT: ${{ github.event.inputs.env }}
           NEW_DIGEST: ${{ steps.digest.outputs.digest_only }}
         run: |
-          git clone https://x-access-token:${GH_TOKEN}@github.com/${GITOPS_REPO}.git gitops-repo
           cd gitops-repo
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
