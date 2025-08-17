@@ -102,7 +102,29 @@ jobs:
           echo "digest=$DIGEST" >> $GITHUB_OUTPUT
           echo "digest_only=$DIGEST_ONLY" >> $GITHUB_OUTPUT
       
+      - name: Check if digest changed
+        id: check-changes
+        env:
+          GH_TOKEN: "${{ env.GH_TOKEN }}"
+          GITOPS_REPO: ${{ env.GITOPS_REPO }}
+          ENVIRONMENT: ${{ github.event.inputs.env }}
+          NEW_DIGEST: ${{ steps.digest.outputs.digest_only }}
+        run: |
+          git clone https://x-access-token:${GH_TOKEN}@github.com/${GITOPS_REPO}.git gitops-repo
+          cd gitops-repo
+          
+          CURRENT_DIGEST=$(grep 'digest:' environments/${ENVIRONMENT}/manifests/frontend/infra-values.yaml | sed 's/.*digest: "\(.*\)"/\1/')
+          
+          if [ "$CURRENT_DIGEST" == "$NEW_DIGEST" ]; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No digest change detected. Current: $CURRENT_DIGEST"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Digest changed. Current: $CURRENT_DIGEST -> New: $NEW_DIGEST"
+          fi
+
       - name: Update GitOps repository
+        if: ${{ steps.check-changes.outputs.changed == 'true' }}
         env:
           GH_TOKEN: "${{ env.GH_TOKEN }}"
           GITOPS_REPO: ${{ env.GITOPS_REPO }}
