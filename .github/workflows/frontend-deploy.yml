@@ -84,6 +84,7 @@ jobs:
           echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
       
       - name: Build and push Docker image
+        if: ${{ github.event.inputs.action == 'build-and-push' }}
         run: |
           docker build --no-cache -t "$IMAGE_URI" .
           docker push "$IMAGE_URI"
