@@ -5,12 +5,12 @@ on:
       env:
         description: "Environment to manage"
         required: true
-        default: DEV
+        default: dev
         type: choice
         options:
-          - DEV
-          - STAGING
-          - PROD
+          - dev
+          - staging
+          - prod
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -27,20 +27,26 @@ jobs:
       - name: Set environment variables
         run: |
           case "${{ github.event.inputs.env }}" in
-            DEV)
+            dev)
               echo "AWS_REGION=${{ vars.AWS_REGION_TF_DEV }}" >> $GITHUB_ENV
               echo "AWS_ROLE_TO_ASSUME=${{ secrets.AWS_ROLE_TO_ASSUME_TF_DEV }}" >> $GITHUB_ENV
               echo "ECR_REPOSITORY_BACKEND=${{ secrets.ECR_REPOSITORY_BACKEND_TF_DEV }}" >> $GITHUB_ENV
+              echo "GH_TOKEN=${{ secrets.TOKEN_GITHUB_TF_DEV }}" >> $GITHUB_ENV
+              echo "GITOPS_REPO=${{ vars.GITOPS_REPO_TF_DEV }}" >> $GITHUB_ENV
               ;;
-            STAGING)
+            staging)
               echo "AWS_REGION=${{ vars.AWS_REGION_TF_STAGING }}" >> $GITHUB_ENV
               echo "AWS_ROLE_TO_ASSUME=${{ secrets.AWS_ROLE_TO_ASSUME_TF_STAGING }}" >> $GITHUB_ENV
               echo "ECR_REPOSITORY_BACKEND=${{ secrets.ECR_REPOSITORY_BACKEND_TF_STAGING }}" >> $GITHUB_ENV
+              echo "GH_TOKEN=${{ secrets.TOKEN_GITHUB_TF_STAGING }}" >> $GITHUB_ENV
+              echo "GITOPS_REPO=${{ vars.GITOPS_REPO_TF_STAGING }}" >> $GITHUB_ENV
               ;;
-            PROD)
+            prod)
               echo "AWS_REGION=${{ vars.AWS_REGION_TF_PROD }}" >> $GITHUB_ENV
               echo "AWS_ROLE_TO_ASSUME=${{ secrets.AWS_ROLE_TO_ASSUME_TF_PROD }}" >> $GITHUB_ENV
               echo "ECR_REPOSITORY_BACKEND=${{ secrets.ECR_REPOSITORY_BACKEND_TF_PROD }}" >> $GITHUB_ENV
+              echo "GH_TOKEN=${{ secrets.TOKEN_GITHUB_TF_PROD }}" >> $GITHUB_ENV
+              echo "GITOPS_REPO=${{ vars.GITOPS_REPO_TF_PROD }}" >> $GITHUB_ENV
               ;;
           esac
 
@@ -76,7 +82,36 @@ jobs:
         id: digest
         run: |
           DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE_URI")
+          DIGEST_ONLY=$(echo "$DIGEST" | cut -d@ -f2)
           echo "digest=$DIGEST" >> $GITHUB_OUTPUT
+          echo "digest_only=$DIGEST_ONLY" >> $GITHUB_OUTPUT
+      
+      - name: Update GitOps repository
+        env:
+          GH_TOKEN: "${{ env.GH_TOKEN }}"
+          GITOPS_REPO: ${{ env.GITOPS_REPO }}
+          ENVIRONMENT: ${{ github.event.inputs.env }}
+          NEW_DIGEST: ${{ steps.digest.outputs.digest_only }}
+        run: |
+          git clone https://x-access-token:${GH_TOKEN}@github.com/${GITOPS_REPO}.git gitops-repo
+          cd gitops-repo
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          BRANCH_NAME="backend-update-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b "$BRANCH_NAME"
+          
+          sed -i "s|digest: \"sha256:.*\"|digest: \"${NEW_DIGEST}\"|g" environments/${ENVIRONMENT}/manifests/backend/infra-values.yaml
+          git add environments/${ENVIRONMENT}/manifests/backend/infra-values.yaml
+          git commit -m "Update backend digest for ${ENVIRONMENT}: ${NEW_DIGEST}"
+          git push origin "$BRANCH_NAME"
+          
+          # Create PR
+          curl -X POST \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITOPS_REPO}/pulls" \
+            -d "{\"title\":\"Backend: Update ${ENVIRONMENT} digest\",\"head\":\"${BRANCH_NAME}\",\"base\":\"main\"}"
       
       - name: Output summary
         run: |
