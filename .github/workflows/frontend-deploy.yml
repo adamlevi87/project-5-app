@@ -11,6 +11,14 @@ on:
           - dev
           - staging
           - prod
+      action:
+        description: "Action to perform"
+        required: true
+        default: build-and-push
+        type: choice
+        options:
+          - build-and-push
+          - update-digest-only
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -61,10 +69,12 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
       
       - name: Extract short SHA
+        if: ${{ github.event.inputs.action == 'build-and-push' }}
         id: vars
         run: echo "sha_short=$(echo $GITHUB_SHA | cut -c1-7)" >> $GITHUB_OUTPUT
       
       - name: Set image tagging variables
+        if: ${{ github.event.inputs.action == 'build-and-push' }}
         run: |
           IMAGE_BASE="${{ env.ECR_REPOSITORY_FRONTEND }}"
           TAG="${{ github.run_id }}-${{ steps.vars.outputs.sha_short }}"
@@ -81,8 +91,14 @@ jobs:
       - name: Capture image digest
         id: digest
         run: |
-          DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE_URI")
-          DIGEST_ONLY=$(echo "$DIGEST" | cut -d@ -f2)
+          if [ "${{ github.event.inputs.action }}" == "build-and-push" ]; then
+            DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE_URI")
+            DIGEST_ONLY=$(echo "$DIGEST" | cut -d@ -f2)
+          else
+            # Get latest image from ECR
+            LATEST_IMAGE=$(aws ecr describe-images --repository-name $(basename ${{ env.ECR_REPOSITORY_FRONTEND }}) --region ${{ env.AWS_REGION }} --query 'sort_by(imageDetails,&imagePushedAt)[-1].imageDigest' --output text)
+            DIGEST_ONLY="$LATEST_IMAGE"
+          fi
           echo "digest=$DIGEST" >> $GITHUB_OUTPUT
           echo "digest_only=$DIGEST_ONLY" >> $GITHUB_OUTPUT
       
