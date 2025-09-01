@@ -111,7 +111,6 @@ You must add the following entries to your local hosts file:
         backend:3000
   - hybrid mode:
         http://frontend.local:30080/
-        https://frontend.local:30443/
       backend is accessible on:
         backend.local:30080/submit
 
