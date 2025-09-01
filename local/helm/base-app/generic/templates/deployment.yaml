@@ -5,7 +5,7 @@ metadata:
   name: {{ include "common.fullname" . }}
   labels:
     {{ include "common.labels" . | nindent 4 }}
-  namespace: {{ .Values.namespace.name }}
+  #namespace: {{ .Values.namespace.name }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount | default 1 }}

@@ -32,7 +32,7 @@ image:
 
 namespace: 
   name: "${BACKEND_NAMESPACE}"
-  create: true
+  create: false
 
 service:
   type: "${BACKEND_SERVICE_TYPE}"
@@ -111,7 +111,7 @@ image:
 
 namespace:
   name: "${FRONTEND_NAMESPACE}"
-  create: true
+  create: false
 
 service:
   type: "${FRONTEND_SERVICE_TYPE}"
