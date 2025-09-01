@@ -30,7 +30,9 @@ image:
   digest: ""
   pullPolicy: IfNotPresent
 
-namespace: "${BACKEND_NAMESPACE}"
+namespace: 
+  name: "${BACKEND_NAMESPACE}"
+  create: true
 
 service:
   type: "${BACKEND_SERVICE_TYPE}"
@@ -94,7 +96,9 @@ image:
   digest: ""
   pullPolicy: IfNotPresent
 
-namespace: "${FRONTEND_NAMESPACE}"
+namespace:
+  name: "${FRONTEND_NAMESPACE}"
+  create: true
 
 service:
   type: "${FRONTEND_SERVICE_TYPE}"
