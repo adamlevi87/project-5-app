@@ -28,17 +28,17 @@ const sqsClient = new SQSClient({
 });
 
 const QUEUE_URL = process.env.SQS_QUEUE_URL;
-const S3_BUCKET = process.env.S3_BUCKET;
+const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME;
 const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL || '5000');
 
-if (!QUEUE_URL || !S3_BUCKET) {
-    console.error('❌ Missing required environment variables: SQS_QUEUE_URL, S3_BUCKET');
+if (!QUEUE_URL || !S3_BUCKET_NAME) {
+    console.error('❌ Missing required environment variables: SQS_QUEUE_URL, S3_BUCKET_NAME');
     process.exit(1);
 }
 
 console.log('🚀 Lambda Mock starting up...');
 console.log(`📬 Polling SQS queue: ${QUEUE_URL}`);
-console.log(`🪣 Writing to S3 bucket: ${S3_BUCKET}`);
+console.log(`🪣 Writing to S3 bucket: ${S3_BUCKET_NAME}`);
 console.log(`⏰ Poll interval: ${POLL_INTERVAL}ms`);
 
 async function pollSQS() {
@@ -100,7 +100,7 @@ async function processMessage(message) {
         
         // Create PutObject command
         const putCommand = new PutObjectCommand({
-            Bucket: S3_BUCKET,
+            Bucket: S3_BUCKET_NAME,
             Key: key,
             Body: JSON.stringify(objectData, null, 2),
             ContentType: 'application/json',
@@ -112,7 +112,7 @@ async function processMessage(message) {
         });
         
         // Save to S3
-        console.log(`💾 Saving to S3: ${S3_BUCKET}/${key}`);
+        console.log(`💾 Saving to S3: ${S3_BUCKET_NAME}/${key}`);
         await s3Client.send(putCommand);
         
         // Delete message from queue
