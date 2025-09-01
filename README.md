@@ -200,10 +200,10 @@ If you are adapting this project to your own environment, ensure the following a
 docker compose logs
 ```
 
-**Query messages in the database:**
+**Query messages in the database:(After running the initialize.sh & from the local/ folder**
 
 ```bash
-docker compose exec postgres psql -U myapp \
+docker compose -f ./docker-compose/docker-compose.yml exec postgres psql -U myapp \
   -d myapp_db -c "SELECT * FROM messages;"
 ```
 

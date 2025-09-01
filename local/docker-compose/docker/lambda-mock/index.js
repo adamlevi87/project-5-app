@@ -27,9 +27,14 @@ const sqsClient = new SQSClient({
     }
 });
 
-const QUEUE_URL = process.env.SQS_QUEUE_URL || 'http://localstack:4566/000000000000/messages-queue';
-const S3_BUCKET = process.env.S3_BUCKET || 'app-data-bucket';
+const QUEUE_URL = process.env.SQS_QUEUE_URL;
+const S3_BUCKET = process.env.S3_BUCKET;
 const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL || '5000');
+
+if (!QUEUE_URL || !S3_BUCKET) {
+    console.error('❌ Missing required environment variables: SQS_QUEUE_URL, S3_BUCKET');
+    process.exit(1);
+}
 
 console.log('🚀 Lambda Mock starting up...');
 console.log(`📬 Polling SQS queue: ${QUEUE_URL}`);
