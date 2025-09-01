@@ -51,3 +51,7 @@ secretStoreRef:
   kind: ClusterSecretStore
 remoteKey: /project/backend/env
 targetSecretName: backend-env
+
+# Add this section to values.yaml
+secretStore:
+  enabled: false          # Default to disabled
