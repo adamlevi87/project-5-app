@@ -23,6 +23,7 @@ deploy:
   helm:
     releases:
       - name: ${FRONTEND_REPOSITORY_NAME}
+        namespace: ${FRONTEND_NAMESPACE}
         chartPath: ${FRONTEND_HELM_TEMPLATE_FOLDER_PATH}/
         valuesFiles:
           - ${FRONTEND_HELM_VALUES_FOLDER_PATH}/${FRONTEND_RELEASE_NAME}.local.yaml
