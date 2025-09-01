@@ -64,6 +64,19 @@ resources:
     cpu: "${BACKEND_LIMIT_CPU}"
     memory: "${BACKEND_LIMIT_MEMORY}"
 
+# External Secrets  
+externalSecrets:
+  enabled: false
+  secretStoreRef:
+    name: aws-secretsmanager
+    kind: ClusterSecretStore
+  remoteKey: /project/backend/env
+  targetSecretName: backend-env
+
+# Add this section to values.yaml
+secretStore:
+  enabled: false          # Default to disabled
+
 envSecrets:
   AWS_REGION: "${AWS_REGION}"
   AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
@@ -129,6 +142,19 @@ resources:
   limits:
     cpu: "${FRONTEND_LIMIT_CPU}"
     memory: "${FRONTEND_LIMIT_MEMORY}"
+
+# External Secrets  
+externalSecrets:
+  enabled: false
+  secretStoreRef:
+    name: aws-secretsmanager
+    kind: ClusterSecretStore
+  remoteKey: /project/backend/env
+  targetSecretName: backend-env
+
+# Add this section to values.yaml
+secretStore:
+  enabled: false          # Default to disabled
 
 envSecrets:
   REACT_APP_BACKEND_URL: "$REACT_APP_BACKEND_URL"

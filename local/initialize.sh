@@ -65,13 +65,13 @@ deploy_hybrid() {
   echo "[~] Waiting for ingress controller admission webhook service to become ready..."
   for i in {1..20}; do
     if helm upgrade --install $BACKEND_RELEASE_NAME $BACKEND_HELM_TEMPLATE_FOLDER_PATH \
-      -f $BACKEND_HELM_TEMPLATE_FOLDER_PATH/values.yaml \
       -f $BACKEND_HELM_VALUES_FOLDER_PATH/$BACKEND_RELEASE_NAME.local.yaml \
       --set image.repository="${IMAGE_URI}" \
       --set image.digest="${DIGEST}" \
       --set image.tag="" 2> helm.$BACKEND_RELEASE_NAME.err.log; then
         echo "[✓] Backend installed successfully."
         break
+      #-f $BACKEND_HELM_TEMPLATE_FOLDER_PATH/values.yaml \
     fi
 
     if grep -q "failed calling webhook.*connect: connection refused" helm.$BACKEND_RELEASE_NAME.err.log; then
@@ -102,11 +102,11 @@ deploy_hybrid() {
   echo "  Digest: $DIGEST"
 
   helm upgrade --install $FRONTEND_RELEASE_NAME $FRONTEND_HELM_TEMPLATE_FOLDER_PATH \
-    -f $FRONTEND_HELM_TEMPLATE_FOLDER_PATH/values.yaml \
     -f $FRONTEND_HELM_VALUES_FOLDER_PATH/$FRONTEND_RELEASE_NAME.local.yaml \
     --set image.repository="${IMAGE_URI}" \
     --set image.digest="${DIGEST}" \
     --set image.tag=""
+    #-f $FRONTEND_HELM_TEMPLATE_FOLDER_PATH/values.yaml \
 
   envsubst < ./skaffold/templates/skaffold-frontend.yaml.template > ./skaffold/skaffold-frontend.yaml
   envsubst < ./skaffold/templates/skaffold-backend.yaml.template > ./skaffold/skaffold-backend.yaml
