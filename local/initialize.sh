@@ -118,8 +118,8 @@ deploy_hybrid() {
 
 uninstall_hybrid() {
   echo "[!] Uninstalling Helm releases..."
-  helm uninstall $FRONTEND_RELEASE_NAME || true
-  helm uninstall $BACKEND_RELEASE_NAME || true
+  helm uninstall $FRONTEND_RELEASE_NAME -n $FRONTEND_NAMESPACE || true
+  helm uninstall $BACKEND_RELEASE_NAME -n $BACKEND_NAMESPACE || true
   helm uninstall $NGINX_RELEASE_NAME -n $NGINX_NAMESPACE || true
 
   echo "[!] Stopping Docker Compose infra (docker_and_kubernetes)..."
