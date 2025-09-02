@@ -18,7 +18,7 @@ build:
         dockerfile: Dockerfile
       hooks:
         before:
-          - command: ["sh", "-c", "../env.base.generate/.generate-env.sh ${FRONTEND_OPTION}"]
+          - command: ["sh", "-c", "./env.base.generate/.generate-env.sh ${FRONTEND_OPTION}"]
 deploy:
   helm:
     releases:
