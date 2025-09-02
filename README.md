@@ -90,7 +90,8 @@ Runs everything (infra + apps) using Docker Compose.
 To enable proper service resolution during local development, this project uses custom hostnames mapped to the IPs of your local virtual machines.
 
 You must add the following entries to your local hosts file:
-
+example:  192.168.241.128 my VM's ip
+          192.168.59.105 my minikube's ip
 ```
 # Docker Compose services
 192.168.241.128 backend
