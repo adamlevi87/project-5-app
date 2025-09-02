@@ -85,6 +85,13 @@ Runs everything (infra + apps) using Docker Compose.
 ./initialize.sh hybrid uninstall
 ```
 
+```bash
+./manage_skaffold.sh help
+./manage_skaffold.sh start
+./manage_skaffold.sh status
+./manage_skaffold.sh logs frontend
+```
+
 ## 🌐 Host Configuration & Browsing
 
 To enable proper service resolution during local development, this project uses custom hostnames mapped to the IPs of your local virtual machines.
