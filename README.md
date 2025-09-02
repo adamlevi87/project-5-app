@@ -73,6 +73,7 @@ Runs everything (infra + apps) using Docker Compose.
 - Infra (Postgres, LocalStack, lambda) via Docker Compose
 - Apps (frontend, backend) deployed via Kubernetes (Minikube)
 - Skaffold watches app folders and redeploys on changes
+(Once Skaffold is initiated, skaffold stop deletes the helm releases)
 
 ```bash
 ./initialize.sh hybrid
