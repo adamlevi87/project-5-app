@@ -47,12 +47,12 @@ resources:
 
 # External Secrets  
 externalSecrets:
-enabled: false
-secretStoreRef:
-  name: aws-secretsmanager
-  kind: ClusterSecretStore
-remoteKey: /project/backend/env
-targetSecretName: backend-env
+  enabled: false
+  secretStoreRef:
+    name: aws-secretsmanager
+    kind: ClusterSecretStore
+  remoteKey: /project/backend/env
+  targetSecretName: backend-env
 
 # Add this section to values.yaml
 secretStore:
