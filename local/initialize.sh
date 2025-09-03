@@ -114,6 +114,8 @@ deploy_hybrid() {
     --set image.tag=""
     #-f $FRONTEND_HELM_TEMPLATE_FOLDER_PATH/values.yaml \
 
+  # Generating Skaffold templatees
+  # To start monitoring, use the manage_skaffold.sh script
   envsubst < ./skaffold/templates/skaffold-frontend.yaml.template > ./skaffold/skaffold-frontend.yaml
   envsubst < ./skaffold/templates/skaffold-backend.yaml.template > ./skaffold/skaffold-backend.yaml
 }
