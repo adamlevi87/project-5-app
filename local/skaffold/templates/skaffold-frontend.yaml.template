@@ -20,7 +20,6 @@ build:
         before:
           - command: ["sh", "-c", "./env.base.generate/.generate-env.sh ${FRONTEND_OPTION}"]
 deploy:
-  cleanupOnExit: false
   helm:
     releases:
       - name: ${FRONTEND_REPOSITORY_NAME}
