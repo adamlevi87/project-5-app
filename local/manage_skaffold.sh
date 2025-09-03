@@ -19,12 +19,12 @@ start_skaffold() {
     
     # Start frontend
     echo "Starting frontend skaffold..."
-    nohup skaffold dev -f "$FRONTEND_CONFIG" > "$FRONTEND_LOG" 2>&1 &
+    nohup skaffold dev --cleanup=false  -f "$FRONTEND_CONFIG" > "$FRONTEND_LOG" 2>&1 &
     FRONTEND_PID=$!
     
     # Start backend
     echo "Starting backend skaffold..."
-    nohup skaffold dev -f "$BACKEND_CONFIG" > "$BACKEND_LOG" 2>&1 &
+    nohup skaffold dev --cleanup=false  -f "$BACKEND_CONFIG" > "$BACKEND_LOG" 2>&1 &
     BACKEND_PID=$!
     
     # Save PIDs
