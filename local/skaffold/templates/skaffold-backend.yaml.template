@@ -20,6 +20,7 @@ build:
         before:
           - command: ["sh", "-c", "./env.base.generate/.generate-env.sh ${BACKEND_OPTION}"]
 deploy:
+  cleanupOnExit: false
   helm:
     releases:
       - name: ${BACKEND_REPOSITORY_NAME}
