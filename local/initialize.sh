@@ -65,6 +65,7 @@ deploy_hybrid() {
   echo "[~] Waiting for ingress controller admission webhook service to become ready..."
   for i in {1..20}; do
     if helm upgrade --install $BACKEND_RELEASE_NAME $BACKEND_HELM_TEMPLATE_FOLDER_PATH \
+      -f $BACKEND_HELM_TEMPLATE_FOLDER_PATH/values.yaml \
       -f $BACKEND_HELM_VALUES_FOLDER_PATH/$BACKEND_RELEASE_NAME.local.yaml \
       --namespace $BACKEND_NAMESPACE \
       --create-namespace \
@@ -104,6 +105,7 @@ deploy_hybrid() {
   echo "  Digest: $DIGEST"
 
   helm upgrade --install $FRONTEND_RELEASE_NAME $FRONTEND_HELM_TEMPLATE_FOLDER_PATH \
+    -f $FRONTEND_HELM_TEMPLATE_FOLDER_PATH/values.yaml \
     -f $FRONTEND_HELM_VALUES_FOLDER_PATH/$FRONTEND_RELEASE_NAME.local.yaml \
     --namespace $FRONTEND_NAMESPACE \
       --create-namespace \

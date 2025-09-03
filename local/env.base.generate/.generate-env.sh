@@ -26,13 +26,9 @@ case "$1" in
     cat <<EOF > "$BACKEND_HELM_VALUES_FOLDER_PATH/${BACKEND_RELEASE_NAME}.local.yaml"
 image:
   repository: "${BACKEND_REPOSITORY_URL}"
-  tag: "${BACKEND_REPOSITORY_TAG}"
   digest: ""
+  tag: "${BACKEND_REPOSITORY_TAG}"
   pullPolicy: IfNotPresent
-
-namespace: 
-  name: "${BACKEND_NAMESPACE}"
-  create: false
 
 service:
   type: "${BACKEND_SERVICE_TYPE}"
@@ -64,19 +60,6 @@ resources:
     cpu: "${BACKEND_LIMIT_CPU}"
     memory: "${BACKEND_LIMIT_MEMORY}"
 
-# External Secrets  
-externalSecrets:
-  enabled: false
-  secretStoreRef:
-    name: aws-secretsmanager
-    kind: ClusterSecretStore
-  remoteKey: /project/backend/env
-  targetSecretName: backend-env
-
-# Add this section to values.yaml
-secretStore:
-  enabled: false          # Default to disabled
-
 envSecrets:
   AWS_REGION: "${AWS_REGION}"
   AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
@@ -105,13 +88,9 @@ EOF
     cat <<EOF > "$FRONTEND_HELM_VALUES_FOLDER_PATH/${FRONTEND_RELEASE_NAME}.local.yaml"
 image:
   repository: "${FRONTEND_REPOSITORY_URL}"
-  tag: "${FRONTEND_REPOSITORY_TAG}"
   digest: ""
+  tag: "${FRONTEND_REPOSITORY_TAG}"
   pullPolicy: IfNotPresent
-
-namespace:
-  name: "${FRONTEND_NAMESPACE}"
-  create: false
 
 service:
   type: "${FRONTEND_SERVICE_TYPE}"
@@ -142,19 +121,6 @@ resources:
   limits:
     cpu: "${FRONTEND_LIMIT_CPU}"
     memory: "${FRONTEND_LIMIT_MEMORY}"
-
-# External Secrets  
-externalSecrets:
-  enabled: false
-  secretStoreRef:
-    name: aws-secretsmanager
-    kind: ClusterSecretStore
-  remoteKey: /project/backend/env
-  targetSecretName: backend-env
-
-# Add this section to values.yaml
-secretStore:
-  enabled: false          # Default to disabled
 
 envSecrets:
   REACT_APP_BACKEND_URL: "$REACT_APP_BACKEND_URL"

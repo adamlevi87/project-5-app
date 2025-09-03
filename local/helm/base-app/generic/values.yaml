@@ -7,7 +7,7 @@ image:
   pullPolicy: IfNotPresent
 
 namespace: 
-  name: ""          # Must be overridden
+  name: ""          # Can be overridden
   create: false     # Can be overridden
 
 service:

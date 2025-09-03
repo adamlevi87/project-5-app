@@ -26,6 +26,7 @@ deploy:
         namespace: ${BACKEND_NAMESPACE}
         chartPath: ${BACKEND_HELM_TEMPLATE_FOLDER_PATH}/
         valuesFiles:
+          - ${BACKEND_HELM_TEMPLATE_FOLDER_PATH}/values.yaml
           - ${BACKEND_HELM_VALUES_FOLDER_PATH}/${BACKEND_RELEASE_NAME}.local.yaml
         imageStrategy:
           helm:
