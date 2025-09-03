@@ -188,15 +188,20 @@ All required scripts (`initialize.sh`, `generate-env.sh`, etc.) and Skaffold com
 Depends on your setup:
 
 I have saved my local Kubernetes configuration at:
-  /home/centos/.kube/minikube/config
+```bash
+/home/centos/.kube/minikube/config
+```
 You need to create a context called "dev-local" so the initialize.sh script will work:
-  kubectl config --kubeconfig=/home/centos/.kube/minikube/config set-context dev-local \
-    --cluster=minikube \
-    --user=minikube \
-    --namespace=default
+```bash
+kubectl config --kubeconfig=/home/centos/.kube/minikube/config set-context dev-local \
+  --cluster=minikube \
+  --user=minikube \
+  --namespace=default
+```
 For kubectl to work:
+```bash
 export KUBECONFIG=/home/centos/.kube/minikube/config
-
+```
 (Managed Separately on purpose [Control when working with the 2nd K8s {the EKS}] - if needed add the details to your default k8s config)
 
 ---
